@@ -1,4 +1,4 @@
-package com.example.ByteForge.jwt;
+package com.example.ByteForge.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

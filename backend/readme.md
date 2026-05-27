@@ -1,0 +1,5 @@
+- Created Trigram gin index for Problems.problem_title to search matching titles efficiently.
+    - Steps
+      - Create index in DB
+      - Write query in repository
+- 

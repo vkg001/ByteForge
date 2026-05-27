@@ -2,6 +2,7 @@ package com.example.ByteForge.auth.signup;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 @AllArgsConstructor

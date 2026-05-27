@@ -1,4 +1,4 @@
-package com.example.ByteForge.auth.signup;
+package com.example.ByteForge.auth.otp;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,12 +16,4 @@ public class OtpDto {
     public String toString () {
         return "[validForMinutes: " + validForMinutes + ", description: " + description + "]";
     }
-}
-
-@Getter
-@Setter
-@AllArgsConstructor
-class VerifyOtp {
-    private String otp;
-    private String email;
 }
