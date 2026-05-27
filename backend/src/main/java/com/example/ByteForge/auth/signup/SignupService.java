@@ -3,14 +3,14 @@ package com.example.ByteForge.auth.signup;
 import com.example.ByteForge.auth.otp.OtpDto;
 import com.example.ByteForge.auth.otp.OtpService;
 import com.example.ByteForge.auth.otp.VerifyOtpDto;
-import com.example.ByteForge.common.SimpleMessageDto;
+import com.example.ByteForge.auth.signup.exceptions.UserAlreadyExistsException;
 import com.example.ByteForge.config.Constants;
 import com.example.ByteForge.auth.AuthResponse;
 import com.example.ByteForge.jwt.JwtService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
@@ -37,9 +37,9 @@ public class SignupService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    Optional<Object> sendOtp(SignupDto user) {
+    Optional<OtpDto> sendOtp(SignupDto user) {
         boolean res = repository.existsByEmail(user.getEmail());
-        if (res) return Optional.of(new SimpleMessageDto("Email already exists!!", HttpStatus.CONFLICT));
+        if (res) throw new UserAlreadyExistsException();
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (otpService.sendOtp(user.getEmail(), SIGNUP_OTP_KEY)) {
@@ -54,24 +54,25 @@ public class SignupService {
             return Optional.of(new OtpDto(Constants.OTP_VALID_MINUTES, "OTP has been sent for signup."));
         }
 
-        return Optional.of(new SimpleMessageDto("OTP could not be sent at the moment.", HttpStatus.INTERNAL_SERVER_ERROR));
+        throw new RuntimeException();
     }
 
-    Object verifyOtp(VerifyOtpDto data) {
+    @Transactional
+    AuthResponse verifyOtp(VerifyOtpDto data) {
         var res = otpService.verifyOtp(data.getOtp(), data.getEmail(), SIGNUP_OTP_KEY);
-        if (res.isPresent()  &&  res.get() instanceof Boolean  &&  (Boolean) res.get()) {
+        if (res.isPresent()  &&  res.get()) {
             String userDetailsJson = redisTemplate.opsForValue().get(SIGNUP_USER_DETAILS_KEY + data.getEmail());
-            if (userDetailsJson == null) return new SimpleMessageDto("Something went wrong !!", HttpStatus.BAD_REQUEST);
+            if (userDetailsJson == null) throw new RuntimeException();
 
             SignupDto userData = objectMapper.readValue(userDetailsJson, SignupDto.class);
             SignupEntity user = new SignupEntity(userData);
 
-            if (repository.existsByEmail(user.getEmail())) return new SimpleMessageDto("User already exist with the same email !!", HttpStatus.FORBIDDEN);
+            if (repository.existsByEmail(user.getEmail())) throw new UserAlreadyExistsException();
             repository.save(user);
             String jwt = jwtService.generateToken(user.getEmail());
             return new AuthResponse(jwt);
         }
 
-        return new SimpleMessageDto((res.isPresent()  &&  res.get() instanceof String) ? (String)(res.get()) : "Invalid OTP", HttpStatus.FORBIDDEN);
+        throw new RuntimeException();
     }
 }

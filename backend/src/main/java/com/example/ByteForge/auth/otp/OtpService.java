@@ -1,5 +1,6 @@
 package com.example.ByteForge.auth.otp;
 
+import com.example.ByteForge.auth.signup.exceptions.InvalidOtpException;
 import com.example.ByteForge.config.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +39,9 @@ public class OtpService {
         return true;
     }
 
-    public Optional<?> verifyOtp(String otp, String email, String saveKey) {
+    public Optional<Boolean> verifyOtp(String otp, String email, String saveKey) {
         String org_otp = redisTemplate.opsForValue().get(saveKey + email);
-        if (org_otp == null) return Optional.of("OTP Expired");
+        if (org_otp == null) throw new InvalidOtpException("OTP Expired");
         if (otp.equals(org_otp)) {
             redisTemplate.opsForValue().getAndDelete(saveKey + email);
             return Optional.of(true);
