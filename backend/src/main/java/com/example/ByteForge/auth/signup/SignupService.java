@@ -69,7 +69,7 @@ public class SignupService implements UserDetailsService {
             if (userDetailsJson == null) throw new RuntimeException();
 
             SignupDto userData = objectMapper.readValue(userDetailsJson, SignupDto.class);
-            SignupEntity user = new SignupEntity(userData);
+            UserEntity user = new UserEntity(userData);
             user.setUserRole(UserRole.USER);
 
             if (repository.existsByEmail(user.getEmail())) throw new UserAlreadyExistsException();
@@ -83,7 +83,7 @@ public class SignupService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        SignupEntity user = repository.findByEmail(email);
+        UserEntity user = repository.findByEmail(email);
         if (user != null) {
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getEmail())

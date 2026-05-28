@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class SignupEntity {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,7 +38,7 @@ public class SignupEntity {
     private LocalDateTime createdDateTime;
 
 
-    SignupEntity(SignupDto userData) {
+    UserEntity(SignupDto userData) {
         this.name = userData.getName();
         this.email = userData.getEmail();
         this.password = userData.getPassword();

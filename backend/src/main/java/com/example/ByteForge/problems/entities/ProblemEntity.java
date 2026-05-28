@@ -55,4 +55,18 @@ public class ProblemEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false, columnDefinition = "jsonb")
     private List<String> topics = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "testcases", joinColumns = @JoinColumn(name = "problem_id"))
+    private List<TestCaseEntity> testCases = new ArrayList<>();
+
+    @Column(nullable = false)
+    private Long memoryLimitInMB;
+
+    @Column(nullable = false)
+    private Long timeLimitInMS;
+
+    @JdbcTypeCode((SqlTypes.JSON))
+    @Column(nullable = false, columnDefinition = "jsonb")
+    private List<Long> similarQuestions = new ArrayList<>();
 }
