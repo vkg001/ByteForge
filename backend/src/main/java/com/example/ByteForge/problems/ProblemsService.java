@@ -3,6 +3,8 @@ package com.example.ByteForge.problems;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.ByteForge.problems.entities.ProblemEntity;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -24,5 +26,10 @@ public class ProblemsService {
 
     Optional<ProblemEntity> findProblemById(Long id) {
         return problemsRepository.findById(id);
+    }
+
+    @Transactional
+    void saveProblem(ProblemEntity problem) {
+        problemsRepository.save(problem);
     }
 }

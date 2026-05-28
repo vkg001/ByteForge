@@ -1,6 +1,5 @@
 package com.example.ByteForge.jwt;
 import com.example.ByteForge.config.AppConfig;
-import com.example.ByteForge.config.Constants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

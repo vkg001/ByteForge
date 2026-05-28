@@ -1,4 +1,4 @@
-package com.example.ByteForge.problems;
+package com.example.ByteForge.problems.entities;
 
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;

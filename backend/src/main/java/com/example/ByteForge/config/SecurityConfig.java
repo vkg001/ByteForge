@@ -15,6 +15,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final String[] OPEN_ENDPOINTS = {"/api/health", "/api/auth/login", "/api/auth/signup-init", "/api/auth/signup-complete"};
+    private final String[] ADMIN_ONLY = {"/admin/**"};
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
@@ -26,6 +27,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(OPEN_ENDPOINTS).permitAll() // Whitelist these
+                        .requestMatchers(ADMIN_ONLY).hasAuthority("ADMIN")
                         .anyRequest().authenticated() // Protect everything else
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // CRITICAL

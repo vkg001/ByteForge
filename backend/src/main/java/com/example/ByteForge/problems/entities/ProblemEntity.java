@@ -1,5 +1,6 @@
-package com.example.ByteForge.problems;
+package com.example.ByteForge.problems.entities;
 
+import com.example.ByteForge.problems.ProblemDifficulty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,7 @@ public class ProblemEntity {
     private Long id;
 
     @Size(min = 3, max = 50, message = "Problem title should be of 3 to 50 characters.")
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String problemTitle;
 
     @Column(nullable = false)

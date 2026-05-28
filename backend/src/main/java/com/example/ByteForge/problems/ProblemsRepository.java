@@ -1,5 +1,6 @@
 package com.example.ByteForge.problems;
 
+import com.example.ByteForge.problems.entities.ProblemEntity;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
