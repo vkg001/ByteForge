@@ -2,31 +2,34 @@ package com.example.ByteForge.problems;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.example.ByteForge.problems.exceptions.ProblemNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/problems")
+@RequestMapping("/api/problems")
 @Slf4j
 public class ProblemsController {
     @Autowired
     private ProblemsService problemsService;
 
-    @PostMapping("/search-problem")
-    public ResponseEntity<List<ProblemEntity>> searchProblemByKeyword(@RequestParam String keyword, @RequestParam Integer pageNumber) {
-        var res = problemsService.searchProblemByKeyword(keyword, pageNumber);
-        if (res == null) {
-            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NOT_ACCEPTABLE);
+    @GetMapping("/")
+    public ResponseEntity<ProblemEntity> getProblemById(@RequestParam Long id) {
+        var res = problemsService.findProblemById(id);
+        if (res.isPresent()) {
+            return ResponseEntity.ok(res.get());
         }
-        return ResponseEntity.ok(res);
+
+        throw new ProblemNotFoundException("Problem does not exist with the provided id.");
     }
 
-
+    @GetMapping("/search-problem")
+    public ResponseEntity<List<ProblemEntity>> searchProblemByKeyword(@RequestParam String keyword, @RequestParam Integer pageNumber) {
+        return ResponseEntity.ok(problemsService.searchProblemByKeyword(keyword, pageNumber));
+    }
 }

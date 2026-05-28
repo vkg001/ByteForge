@@ -11,6 +11,9 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
@@ -20,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
-public class SignupService {
+public class SignupService implements UserDetailsService {
     private static final String SIGNUP_OTP_KEY = "signup-otp:";
     private static final String SIGNUP_USER_DETAILS_KEY = "signup-user-details:";
 
@@ -37,6 +40,7 @@ public class SignupService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Transactional
     Optional<OtpDto> sendOtp(SignupDto user) {
         boolean res = repository.existsByEmail(user.getEmail());
         if (res) throw new UserAlreadyExistsException();
@@ -66,6 +70,7 @@ public class SignupService {
 
             SignupDto userData = objectMapper.readValue(userDetailsJson, SignupDto.class);
             SignupEntity user = new SignupEntity(userData);
+            user.setUserRole(UserRole.USER);
 
             if (repository.existsByEmail(user.getEmail())) throw new UserAlreadyExistsException();
             repository.save(user);
@@ -74,5 +79,18 @@ public class SignupService {
         }
 
         throw new RuntimeException();
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        SignupEntity user = repository.findByEmail(email);
+        if (user != null) {
+            return org.springframework.security.core.userdetails.User.builder()
+                    .username(user.getEmail())
+                    .password(user.getPassword())
+                    .authorities(user.getUserRole().toString()) // DO NOT LEAVE THIS EMPTY
+                    .build();
+        }
+        throw new UsernameNotFoundException(email);
     }
 }

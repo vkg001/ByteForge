@@ -1,8 +1,11 @@
 package com.example.ByteForge.jwt;
+import com.example.ByteForge.config.AppConfig;
+import com.example.ByteForge.config.Constants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +21,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService; // Implement this to load users from your DB
+    @Autowired
+    private AppConfig appConfig;
 
     public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
         this.jwtService = jwtService;
@@ -41,7 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             userIdentifier = jwtService.extractSubject(jwt);
 
-            // If we have a user and they aren't authenticated yet
+            // If we have a user, and they aren't authenticated yet
             if (userIdentifier != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userIdentifier);
 
@@ -54,7 +59,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            // Log the exception, don't crash. Let the filter chain continue to handle the unauthorized request.
+            if (appConfig.isDevProfile()) {
+                System.err.println("JWT Filter Error: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
 
         filterChain.doFilter(request, response);

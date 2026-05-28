@@ -46,6 +46,7 @@ public class OtpService {
             redisTemplate.opsForValue().getAndDelete(saveKey + email);
             return Optional.of(true);
         }
-        return Optional.of(false);
+
+        throw new InvalidOtpException("Incorrect OTP");
     }
 }

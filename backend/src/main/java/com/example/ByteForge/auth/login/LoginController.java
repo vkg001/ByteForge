@@ -1,7 +1,6 @@
 package com.example.ByteForge.auth.login;
 
 import com.example.ByteForge.auth.AuthResponse;
-import com.example.ByteForge.common.SimpleMessageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
