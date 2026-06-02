@@ -3,13 +3,11 @@ package com.example.ByteForge.problems;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.ByteForge.common.SimpleMessageDto;
 import com.example.ByteForge.problems.entities.ProblemEntity;
 import com.example.ByteForge.problems.entities.TestCaseEntity;
 import com.example.ByteForge.problems.exceptions.ProblemNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
