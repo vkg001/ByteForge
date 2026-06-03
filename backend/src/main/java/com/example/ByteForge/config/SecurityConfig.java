@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -22,7 +21,8 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final String[] OPEN_ENDPOINTS = {"/api/health", "/api/auth/login", "/api/auth/signup-init", "/api/auth/signup-complete"};
-    private final String[] ADMIN_ONLY = {"/admin/**"};
+    private final String[] ADMIN_AND_ABOVE = {"/admin/**"};
+    private final String[] USER_AND_ABOVE = {"/user/**"};
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
@@ -35,7 +35,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(OPEN_ENDPOINTS).permitAll() // Whitelist these
-                        .requestMatchers(ADMIN_ONLY).hasAuthority("ADMIN")
+                        .requestMatchers(ADMIN_AND_ABOVE).hasAnyAuthority("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(USER_AND_ABOVE).hasAnyAuthority("ADMIN", "USER", "SUPER_ADMIN")
                         .anyRequest().authenticated() // Protect everything else
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // CRITICAL

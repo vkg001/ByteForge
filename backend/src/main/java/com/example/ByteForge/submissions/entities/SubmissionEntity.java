@@ -1,4 +1,4 @@
-package com.example.ByteForge.submissions;
+package com.example.ByteForge.submissions.entities;
 
 import com.example.ByteForge.auth.signup.UserEntity;
 import com.example.ByteForge.problems.entities.ProblemEntity;
@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -32,13 +34,15 @@ public class SubmissionEntity {
     private UserEntity user;
 
     @Column(nullable = false, updatable = false)
-    private String submissionCode;
+    private String submissionCode; // code submitted by user
 
-    @Column(nullable = false, updatable = false)
-    private Boolean accepted;
-
-    @Column(nullable = true, updatable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(nullable = false, columnDefinition = "jsonb")
     private TestCaseEntity failedOnTestCase;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, updatable = false)
+    private SubmissionStatus submissionStatus;
 
     @Column(nullable = true, updatable = false)
     private String codeOutput;

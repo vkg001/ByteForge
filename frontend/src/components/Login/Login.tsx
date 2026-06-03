@@ -1,12 +1,15 @@
+// Login.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { login, LoginPayload, LoginResponse } from "../../api/Auth";
 import { ApiError } from "../../api/client";
 import { useAuthStore } from "../../store/useAuthStore";
-import * as loginStyles from "./LoginCss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub, faApple } from "@fortawesome/free-brands-svg-icons";
+
+// Import standard CSS
+import "./Login.css"; 
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -16,13 +19,13 @@ const Login = () => {
 
     const mutation = useMutation<LoginResponse, ApiError, LoginPayload>({
         mutationFn: login,
-        onSuccess: (data) => {
+        onSuccess: (data: LoginResponse) => {
             setToken(data.token);
             navigate("/");
         },
     });
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
         event.preventDefault();
         mutation.mutate({ email, password });
     };
@@ -35,17 +38,17 @@ const Login = () => {
     })();
 
     return (
-        <div style={loginStyles.wrapperStyle}>
-            <div style={loginStyles.cardStyle}>
+        <div className="login-wrapper">
+            <div className="login-card">
 
-                <div style={loginStyles.logoContainerStyle}>
-                    <div style={loginStyles.logoIconStyle}>B</div>
-                    <span style={{ fontSize: "20px", fontWeight: "600" }}>ByteForge</span>
+                <div className="logo-container">
+                    <div className="logo-icon">B</div>
+                    <span className="logo-text">ByteForge</span>
                 </div>
 
-                <form onSubmit={handleSubmit} style={loginStyles.formStyle}>
+                <form onSubmit={handleSubmit} className="login-form">
                     <input
-                        style={loginStyles.inputStyle}
+                        className="login-input"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -53,7 +56,7 @@ const Login = () => {
                         required
                     />
                     <input
-                        style={loginStyles.inputStyle}
+                        className="login-input"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -62,48 +65,48 @@ const Login = () => {
                     />
 
                     {/* Mock Cloudflare CAPTCHA Box */}
-                    <div style={loginStyles.captchaBoxStyle}>
-                        <div style={loginStyles.captchaLeftStyle}>
-                            <div style={loginStyles.checkIconStyle}>✓</div>
+                    <div className="captcha-box">
+                        <div className="captcha-left">
+                            <div className="check-icon">✓</div>
                             Success!
                         </div>
-                        <div style={loginStyles.captchaRightStyle}>
+                        <div className="captcha-right">
                             <strong>CLOUDFLARE</strong><br />
                             Privacy • Terms
                         </div>
                     </div>
 
-                    {errorMessage && <div style={{ color: "#dc2626", fontSize: 13, textAlign: "center" }}>{errorMessage}</div>}
+                    {errorMessage && <div className="error-message">{errorMessage}</div>}
 
-                    <button type="submit" style={loginStyles.buttonStyle} disabled={mutation.isPending}>
+                    <button type="submit" className="submit-button" disabled={mutation.isPending}>
                         {mutation.isPending ? "Signing In..." : "Sign In"}
                     </button>
                 </form>
 
-                <div style={loginStyles.agreementTextStyle}>
-                    By continuing, you agree to <span style={loginStyles.linkStyle}>Terms</span> & <span style={loginStyles.linkStyle}>Privacy Policy</span>.
+                <div className="agreement-text">
+                    By continuing, you agree to <span className="agreement-link">Terms</span> & <span className="agreement-link">Privacy Policy</span>.
                 </div>
 
-                <div style={loginStyles.actionRowStyle}>
-                    <span style={loginStyles.actionLinkStyle}>Forgot Password?</span>
-                    <span style={loginStyles.actionLinkStyle}>Sign Up</span>
+                <div className="action-row">
+                    <span className="action-link">Forgot Password?</span>
+                    <span className="action-link">Sign Up</span>
                 </div>
 
-                <div style={loginStyles.dividerStyle}>
-                    <div style={loginStyles.lineStyle}></div>
-                    <span style={loginStyles.dividerTextStyle}>or you can sign in with</span>
-                    <div style={loginStyles.lineStyle}></div>
+                <div className="divider">
+                    <div className="divider-line"></div>
+                    <span className="divider-text">or you can sign in with</span>
+                    <div className="divider-line"></div>
                 </div>
 
-                <div style={loginStyles.socialGroupStyle}>
-                    <div style={loginStyles.socialIconStyle}>
-                        <FontAwesomeIcon icon={faGoogle} style={{ fontSize: "18px", color: "#ffffff" }} />
+                <div className="social-group">
+                    <div className="social-icon">
+                        <FontAwesomeIcon icon={faGoogle} style={{ fontSize: "18px" }} />
                     </div>
-                    <div style={loginStyles.socialIconStyle}>
-                        <FontAwesomeIcon icon={faGithub} style={{ fontSize: "18px", color: "#ffffff" }} />
+                    <div className="social-icon">
+                        <FontAwesomeIcon icon={faGithub} style={{ fontSize: "18px" }} />
                     </div>
-                    <div style={loginStyles.socialIconStyle}>
-                        <FontAwesomeIcon icon={faApple} style={{ fontSize: "20px", color: "#ffffff" }} />
+                    <div className="social-icon">
+                        <FontAwesomeIcon icon={faApple} style={{ fontSize: "20px" }} />
                     </div>
                 </div>
 
