@@ -1,6 +1,6 @@
 package com.example.ByteForge.submissions.entities;
 
-import com.example.ByteForge.auth.signup.UserEntity;
+import com.example.ByteForge.user.UserEntity;
 import com.example.ByteForge.problems.entities.ProblemEntity;
 import com.example.ByteForge.problems.entities.TestCaseEntity;
 import jakarta.persistence.*;

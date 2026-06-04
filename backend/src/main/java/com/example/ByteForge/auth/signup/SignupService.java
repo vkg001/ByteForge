@@ -7,6 +7,9 @@ import com.example.ByteForge.auth.signup.exceptions.UserAlreadyExistsException;
 import com.example.ByteForge.config.Constants;
 import com.example.ByteForge.auth.AuthResponse;
 import com.example.ByteForge.jwt.JwtService;
+import com.example.ByteForge.user.UserEntity;
+import com.example.ByteForge.user.UserRole;
+import com.example.ByteForge.user.UsersRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +26,14 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
-public class SignupService implements UserDetailsService {
+public class SignupService {
     private static final String SIGNUP_OTP_KEY = "signup-otp:";
     private static final String SIGNUP_USER_DETAILS_KEY = "signup-user-details:";
 
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
-    private SignupRepository repository;
+    private UsersRepository repository;
     @Autowired
     private StringRedisTemplate redisTemplate;
     @Autowired
@@ -79,18 +82,5 @@ public class SignupService implements UserDetailsService {
         }
 
         throw new RuntimeException();
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        UserEntity user = repository.findByEmail(email);
-        if (user != null) {
-            return org.springframework.security.core.userdetails.User.builder()
-                    .username(user.getEmail())
-                    .password(user.getPassword())
-                    .authorities(user.getUserRole().toString()) // DO NOT LEAVE THIS EMPTY
-                    .build();
-        }
-        throw new UsernameNotFoundException(email);
     }
 }

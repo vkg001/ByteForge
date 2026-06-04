@@ -1,4 +1,4 @@
-package com.example.ByteForge.auth.signup;
+package com.example.ByteForge.user;
 
 public enum UserRole {
     USER,

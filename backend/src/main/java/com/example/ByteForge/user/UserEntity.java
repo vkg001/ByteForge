@@ -1,5 +1,6 @@
-package com.example.ByteForge.auth.signup;
+package com.example.ByteForge.user;
 
+import com.example.ByteForge.auth.signup.SignupDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -38,7 +39,7 @@ public class UserEntity {
     private LocalDateTime createdDateTime;
 
 
-    UserEntity(SignupDto userData) {
+    public UserEntity(SignupDto userData) {
         this.name = userData.getName();
         this.email = userData.getEmail();
         this.password = userData.getPassword();

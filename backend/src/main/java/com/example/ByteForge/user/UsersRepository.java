@@ -1,8 +1,8 @@
-package com.example.ByteForge.auth.signup;
+package com.example.ByteForge.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface SignupRepository extends JpaRepository<UserEntity, Long> {
+public interface UsersRepository extends JpaRepository<UserEntity, Long> {
     boolean existsByEmail(String email);
     UserEntity findByEmail(String email);
 }
