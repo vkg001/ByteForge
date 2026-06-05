@@ -4,6 +4,7 @@ import com.example.ByteForge.auth.signup.exceptions.InvalidOtpException;
 import com.example.ByteForge.auth.signup.exceptions.UserAlreadyExistsException;
 import com.example.ByteForge.common.SimpleMessageDto;
 import com.example.ByteForge.problems.exceptions.ProblemNotFoundException;
+import com.example.ByteForge.user.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,6 +34,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ProblemNotFoundException.class)
     public ResponseEntity<SimpleMessageDto> handleProblemNotFoundException(ProblemNotFoundException ex) {
+        SimpleMessageDto errorResponse = new SimpleMessageDto(ex.getMessage(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(errorResponse, errorResponse.getStatus());
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<SimpleMessageDto> handleUserNotFoundException(UserNotFoundException ex) {
         SimpleMessageDto errorResponse = new SimpleMessageDto(ex.getMessage(), HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(errorResponse, errorResponse.getStatus());
     }

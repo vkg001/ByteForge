@@ -20,7 +20,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
-    private final String[] OPEN_ENDPOINTS = {"/api/health", "/api/auth/login", "/api/auth/signup-init", "/api/auth/signup-complete"};
+    private final String[] OPEN_ENDPOINTS = {"/api/**"};
     private final String[] ADMIN_AND_ABOVE = {"/admin/**"};
     private final String[] USER_AND_ABOVE = {"/user/**"};
 
