@@ -1,7 +1,7 @@
 package com.example.ByteForge.submissions;
 
 import com.example.ByteForge.submissions.entities.ProblemSubmissionStatus;
-import com.example.ByteForge.submissions.entities.SubmissionDto;
+import com.example.ByteForge.submissions.dto.SubmissionDto;
 import com.example.ByteForge.submissions.entities.SubmissionEntity;
 import com.example.ByteForge.submissions.entities.SubmissionStatus;
 import org.springframework.beans.factory.annotation.Autowired;

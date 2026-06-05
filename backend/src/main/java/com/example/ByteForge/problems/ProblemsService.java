@@ -19,12 +19,12 @@ public class ProblemsService {
     @Autowired
     private ProblemsRepository problemsRepository;
 
-    List<ProblemEntity> searchProblemByKeyword(String keyword, int pageNumber) {
+    public List<ProblemEntity> searchProblemByKeyword(String keyword, int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber, PROBLEMS_PER_PAGE);
         return problemsRepository.searchProblemsByKeyword(keyword, pageable);
     }
 
-    Optional<ProblemEntity> findProblemById(Long id) {
+    public Optional<ProblemEntity> findProblemById(Long id) {
         return problemsRepository.findById(id);
     }
 

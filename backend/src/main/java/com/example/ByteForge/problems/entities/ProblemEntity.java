@@ -69,4 +69,13 @@ public class ProblemEntity {
     @JdbcTypeCode((SqlTypes.JSON))
     @Column(nullable = false, columnDefinition = "jsonb")
     private List<Long> similarQuestions = new ArrayList<>();
+
+    @Column(nullable = false)
+    private String boilerPlateUser;
+
+    @Column(nullable = false)
+    private String boilerPlatePrepend;
+
+    @Column(nullable = false)
+    private String boilerPlateAppend;
 }

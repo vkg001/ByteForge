@@ -1,5 +1,7 @@
-package com.example.ByteForge.submissions.entities;
+package com.example.ByteForge.submissions.dto;
 
+import com.example.ByteForge.submissions.entities.ProblemSubmissionStatus;
+import com.example.ByteForge.submissions.entities.SubmissionEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
