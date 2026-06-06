@@ -6,6 +6,7 @@ import com.example.ByteForge.judge0.dto.Judge0ResponseDto;
 import com.example.ByteForge.problems.ProblemsService;
 import com.example.ByteForge.problems.entities.ProblemEntity;
 import com.example.ByteForge.problems.exceptions.ProblemNotFoundException;
+import com.example.ByteForge.submissions.dto.SubmitCodeRequestDto;
 import com.example.ByteForge.submissions.dto.SubmitCodeResponseDto;
 import com.example.ByteForge.submissions.dto.SubmissionDto;
 import com.example.ByteForge.submissions.entities.SubmissionStatus;
@@ -17,7 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/user/submissions/")
+@RequestMapping("/user/submissions")
 public class SubmissionsController {
 
     @Autowired
@@ -32,12 +33,25 @@ public class SubmissionsController {
     }
 
     @PostMapping("/submit")
-    SubmitCodeResponseDto submitCode(@RequestParam String sourceCode, @RequestParam Long problemId, @RequestParam int languageId) {
+    SubmitCodeResponseDto submitCode(@RequestBody SubmitCodeRequestDto requestDto) {
+        Long problemId = requestDto.getProblemId();
+        int languageId = requestDto.getLanguageId();
+        String sourceCode = requestDto.getSourceCode();
+
         Optional<ProblemEntity> problemResponse = problemsService.findProblemById(problemId);
         if (problemResponse.isEmpty()) throw new ProblemNotFoundException("Invalid problem id");
 
         ProblemEntity problem = problemResponse.get();
-        sourceCode = problem.getBoilerPlatePrepend() + sourceCode + problem.getBoilerPlateAppend();
+        int boilerPlateCodeIdx = -1;
+
+        for (int i = 0; i < problem.getBoilerPlateCodes().size(); i++) {
+            if (problem.getBoilerPlateCodes().get(i).getLanguageCode() == languageId) {
+                boilerPlateCodeIdx = i;
+                break;
+            }
+        }
+        if (boilerPlateCodeIdx == -1) throw new ProblemNotFoundException("Invalid language code");
+        sourceCode = problem.getBoilerPlateCodes().get(boilerPlateCodeIdx).getPrependCode() + sourceCode + problem.getBoilerPlateCodes().get(boilerPlateCodeIdx).getAppendCode();
 
         int totalTestCases = problem.getTestCases().size();
         int passed = 0;
@@ -60,10 +74,15 @@ public class SubmissionsController {
                     SubmitCodeResponseDto dto = new SubmitCodeResponseDto();
                     dto.setStatus(SubmissionStatus.WA);
                     dto.setCodeOutput(response.stdout());
+
+                    dto.setExpectedOutput("Hidden");
                     if (!testCase.getHidden()) dto.setExpectedOutput(testCase.getOutput());
+
                     dto.setInput(testCase.getInput());
                     dto.setTotalPassed(passed);
                     dto.setTotalTestCases(totalTestCases);
+                    dto.setHiddenTestCase(testCase.getHidden());
+                    dto.setError("Wrong Answer");
 
                     return dto;
                 }

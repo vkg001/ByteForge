@@ -70,12 +70,7 @@ public class ProblemEntity {
     @Column(nullable = false, columnDefinition = "jsonb")
     private List<Long> similarQuestions = new ArrayList<>();
 
-    @Column(nullable = false)
-    private String boilerPlateUser;
-
-    @Column(nullable = false)
-    private String boilerPlatePrepend;
-
-    @Column(nullable = false)
-    private String boilerPlateAppend;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "boilerplate_codes", joinColumns = @JoinColumn(name = "problem_id"))
+    private List<BoilerPlateCode> boilerPlateCodes = new ArrayList<>();
 }
