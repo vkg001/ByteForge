@@ -7,6 +7,7 @@ public enum SubmissionStatus {
     ACC,
     CE,
     RE, // Catches SIGSEGV, SIGXFSZ, SIGFPE, etc.
+    RTE, // Runtime error
     ISE; // Internal server error
 
     public static SubmissionStatus fromJudge0Id(int id) {

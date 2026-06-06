@@ -19,4 +19,5 @@ public class SubmitCodeResponseDto {
     private String expectedOutput;
     private String codeOutput;
     private String error;
+    private String userLogs;
 }

@@ -6,6 +6,7 @@ public record Judge0RequestDto(
         @JsonProperty("source_code") String sourceCode,
         @JsonProperty("language_id") int languageId,
         @JsonProperty("stdin") String stdin,
+        @JsonProperty("expected_output") String expectedOutput,
         @JsonProperty("cpu_time_limit") double cpuTimeLimit,
         @JsonProperty("memory_limit") int memoryLimit,
         @JsonProperty("wall_time_limit") double wallTimeLimit

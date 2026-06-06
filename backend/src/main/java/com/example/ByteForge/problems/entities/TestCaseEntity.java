@@ -15,4 +15,5 @@ public class TestCaseEntity {
     private String input;
     private String output;
     private Boolean hidden;
+    private Boolean hiddenAfterFailure;
 }
