@@ -27,7 +27,8 @@ public class Judge0Service {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public List<String> submitBatch(List<Judge0RequestDto> requests) {
-        String url = judge0BaseUrl + "/submissions/batch?base64_encoded=false";
+        // Enforcing Base64 encoding
+        String url = judge0BaseUrl + "/submissions/batch?base64_encoded=true";
 
         try {
             String jsonBody = objectMapper.writeValueAsString(Map.of("submissions", requests));
@@ -39,8 +40,12 @@ public class Judge0Service {
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            log.warn("Raw Token Response: {}", response.body());
             JsonNode root = objectMapper.readTree(response.body());
+
+            // Failsafe: check for top-level errors before parsing tokens
+            if (root.has("error")) {
+                throw new RuntimeException("Judge0 error during batch submission: " + root.toString());
+            }
 
             return root.findValuesAsText("token");
         } catch (Exception e) {
@@ -49,9 +54,9 @@ public class Judge0Service {
     }
 
     public List<Judge0ResponseDto> getBatchResults(List<String> tokens) {
-        log.warn("Tokens received to fetch status: {}", tokens);
         String tokenString = String.join(",", tokens);
-        String url = judge0BaseUrl + "/submissions/batch?tokens=" + tokenString + "&base64_encoded=false";
+        // Enforcing Base64 encoding
+        String url = judge0BaseUrl + "/submissions/batch?tokens=" + tokenString + "&base64_encoded=true";
 
         try {
             HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
@@ -61,11 +66,16 @@ public class Judge0Service {
             while (!allFinished) {
                 HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
                 JsonNode root = objectMapper.readTree(response.body());
+
+                // Fixed: Do not proceed if submissions are missing. Throw immediately.
+                if (root.get("submissions") == null) {
+                    throw new RuntimeException("Judge0 API returned an invalid response. Expected 'submissions' array. Body: " + root.toString());
+                }
+
                 submissions = root.get("submissions");
 
                 allFinished = true;
                 for (JsonNode sub : submissions) {
-                    log.warn("Raw Submission Body: {}", sub);
                     if (sub.get("status") == null  || sub.get("status").get("id") == null) continue;
 
                     int statusId = sub.get("status").get("id").asInt();

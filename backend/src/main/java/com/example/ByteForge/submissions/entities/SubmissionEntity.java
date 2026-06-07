@@ -21,8 +21,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubmissionEntity {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -39,7 +39,7 @@ public class SubmissionEntity {
     @Column(nullable = false, updatable = false, columnDefinition = "TEXT")
     private String submissionCode; // code submitted by user
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(nullable = true, name = "testcase_id")
     private TestCaseEntity failedOnTestCase;
 

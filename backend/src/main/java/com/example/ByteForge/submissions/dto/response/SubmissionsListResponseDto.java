@@ -15,6 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubmissionsListResponseDto {
-    private List<SubmissionEntity> allSubmissions = new ArrayList<>();
+    private List<SubmissionResponseDto> allSubmissions = new ArrayList<>();
     private ProblemSubmissionStatus status;
 }

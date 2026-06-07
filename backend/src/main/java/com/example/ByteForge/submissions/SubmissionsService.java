@@ -14,6 +14,7 @@ import com.example.ByteForge.submissions.entities.ProblemSubmissionStatus;
 import com.example.ByteForge.submissions.dto.response.SubmissionsListResponseDto;
 import com.example.ByteForge.submissions.entities.SubmissionEntity;
 import com.example.ByteForge.submissions.entities.SubmissionStatus;
+import com.example.ByteForge.submissions.mapper.SubmissionMapper;
 import com.example.ByteForge.user.UsersService;
 import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
@@ -21,7 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +31,7 @@ import java.util.stream.Collectors;
 @Service
 public class SubmissionsService {
     @Autowired
-    SubmissionsRepository repository;
+    private SubmissionsRepository repository;
 
     @Autowired
     private Judge0Service judge0Service;
@@ -43,10 +45,13 @@ public class SubmissionsService {
     @Autowired
     private UsersService usersService;
 
+    @Autowired
+    private SubmissionMapper submissionMapper;
+
     public SubmissionsListResponseDto findSubmissionByProblemAndUserId(Long problemId, Long userId, Pageable pageable) {
         List<SubmissionEntity> submissions = repository.findSubmissionByProblemAndUserId(problemId, userId, pageable);
         SubmissionsListResponseDto res = new SubmissionsListResponseDto();
-        res.setAllSubmissions(submissions);
+        res.setAllSubmissions(submissionMapper.toResponseDtoList(submissions));
 
         if (submissions.isEmpty()) {
             res.setStatus(ProblemSubmissionStatus.UAT);
@@ -110,7 +115,7 @@ public class SubmissionsService {
                 SubmitCodeResponseDto dto = new SubmitCodeResponseDto();
                 dto.setError(response.compileOutput());
                 dto.setStatus(SubmissionStatus.CE);
-                saveSubmission(problem, languageId, finalSourceCode, testCase, response);
+                saveSubmission(problem, languageId, sourceCode, testCase, response);
                 return dto;
             }
 
@@ -118,7 +123,7 @@ public class SubmissionsService {
                 SubmitCodeResponseDto dto = new SubmitCodeResponseDto();
                 dto.setError(response.stderr());
                 dto.setStatus(SubmissionStatus.RTE);
-                saveSubmission(problem, languageId, finalSourceCode, testCase, response);
+                saveSubmission(problem, languageId, sourceCode, testCase, response);
                 return dto;
             }
 
@@ -146,7 +151,7 @@ public class SubmissionsService {
                     dto.setError("Time Limit Exceeded");
                 }
 
-                saveSubmission(problem,languageId, finalSourceCode, testCase, response);
+                saveSubmission(problem,languageId, sourceCode, testCase, response);
                 return dto;
             }
         }
@@ -160,7 +165,7 @@ public class SubmissionsService {
             dto.setUserLogs(results.get(results.size() - 1).stderr());
         }
 
-        saveSubmission(problem, languageId, finalSourceCode, null, null);
+        saveSubmission(problem, languageId, sourceCode, null, null);
         return dto;
     }
 
