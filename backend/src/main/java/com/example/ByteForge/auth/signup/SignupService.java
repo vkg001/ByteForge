@@ -8,7 +8,7 @@ import com.example.ByteForge.config.Constants;
 import com.example.ByteForge.auth.AuthResponse;
 import com.example.ByteForge.config.jwt.JwtService;
 import com.example.ByteForge.user.entities.UserEntity;
-import com.example.ByteForge.user.UserRole;
+import com.example.ByteForge.user.entities.UserRole;
 import com.example.ByteForge.user.UsersRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;

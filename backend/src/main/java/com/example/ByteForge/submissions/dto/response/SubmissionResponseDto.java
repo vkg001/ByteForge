@@ -1,7 +1,7 @@
 package com.example.ByteForge.submissions.dto.response;
 
-import com.example.ByteForge.problems.dto.response.TestCaseResponseDto;
-import com.example.ByteForge.submissions.entities.SubmissionStatus;
+import com.example.ByteForge.problems.core.dto.response.TestCaseResponseDto;
+import com.example.ByteForge.submissions.enums.SubmissionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

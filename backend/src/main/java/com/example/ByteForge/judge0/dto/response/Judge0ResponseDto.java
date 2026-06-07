@@ -2,7 +2,7 @@ package com.example.ByteForge.judge0.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.example.ByteForge.submissions.entities.SubmissionStatus;
+import com.example.ByteForge.submissions.enums.SubmissionStatus;
 import java.util.Base64;
 import java.nio.charset.StandardCharsets;
 

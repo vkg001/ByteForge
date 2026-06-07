@@ -1,8 +1,9 @@
 package com.example.ByteForge.submissions.entities;
 
+import com.example.ByteForge.submissions.enums.SubmissionStatus;
 import com.example.ByteForge.user.entities.UserEntity;
-import com.example.ByteForge.problems.entities.ProblemEntity;
-import com.example.ByteForge.problems.entities.TestCaseEntity;
+import com.example.ByteForge.problems.core.entities.ProblemEntity;
+import com.example.ByteForge.problems.core.entities.TestCaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
