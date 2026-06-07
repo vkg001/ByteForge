@@ -1,5 +1,6 @@
-package com.example.ByteForge.user;
+package com.example.ByteForge.user.dto.response;
 
+import com.example.ByteForge.user.entities.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,10 +10,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class UserResponseDto {
     String name;
 
-    public UserDto(UserEntity entity) {
+    public UserResponseDto(UserEntity entity) {
         this.name = entity.getName();
     }
 }

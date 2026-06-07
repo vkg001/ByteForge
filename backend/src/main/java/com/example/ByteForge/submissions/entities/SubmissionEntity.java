@@ -1,6 +1,6 @@
 package com.example.ByteForge.submissions.entities;
 
-import com.example.ByteForge.user.UserEntity;
+import com.example.ByteForge.user.entities.UserEntity;
 import com.example.ByteForge.problems.entities.ProblemEntity;
 import com.example.ByteForge.problems.entities.TestCaseEntity;
 import jakarta.persistence.*;
@@ -9,8 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 

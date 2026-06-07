@@ -1,4 +1,4 @@
-package com.example.ByteForge.jwt;
+package com.example.ByteForge.config.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

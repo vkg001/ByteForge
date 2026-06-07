@@ -1,6 +1,6 @@
 package com.example.ByteForge.config;
 
-import com.example.ByteForge.jwt.JwtAuthenticationFilter;
+import com.example.ByteForge.config.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;

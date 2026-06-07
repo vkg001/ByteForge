@@ -1,4 +1,4 @@
-package com.example.ByteForge.common;
+package com.example.ByteForge.utility;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

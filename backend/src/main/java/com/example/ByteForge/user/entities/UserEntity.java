@@ -1,6 +1,7 @@
-package com.example.ByteForge.user;
+package com.example.ByteForge.user.entities;
 
 import com.example.ByteForge.auth.signup.SignupDto;
+import com.example.ByteForge.user.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

@@ -1,4 +1,4 @@
-package com.example.ByteForge.judge0.dto;
+package com.example.ByteForge.judge0.dto.request;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

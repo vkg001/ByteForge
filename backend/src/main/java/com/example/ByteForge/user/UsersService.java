@@ -1,5 +1,7 @@
 package com.example.ByteForge.user;
 
+import com.example.ByteForge.user.dto.response.UserResponseDto;
+import com.example.ByteForge.user.entities.UserEntity;
 import com.example.ByteForge.user.exceptions.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +33,7 @@ public class UsersService  implements UserDetailsService {
         throw new UsernameNotFoundException(email);
     }
 
-    public UserDto getCurrentUserDetails() {
+    public UserResponseDto getCurrentUserDetails() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null  ||  !authentication.isAuthenticated()  ||  "anonymousUser".equals(authentication.getPrincipal())) {
             throw  new UserNotFoundException("Invalid Session. Details not available");
@@ -42,7 +44,7 @@ public class UsersService  implements UserDetailsService {
 
         UserEntity userEntity = repository.findByEmail(email);
         userEntity.setPassword("");
-        return new UserDto(userEntity);
+        return new UserResponseDto(userEntity);
     }
 
     public UserEntity getCurrentUserDetailsInEntity() {
@@ -57,8 +59,8 @@ public class UsersService  implements UserDetailsService {
         return repository.findByEmail(email);
     }
 
-    public Optional<UserDto> getUserDetailsById(Long Id) {
+    public Optional<UserResponseDto> getUserDetailsById(Long Id) {
         var user = repository.findById(Id);
-        return user.map(entity -> Optional.of(new UserDto(entity))).orElse(null);
+        return user.map(entity -> Optional.of(new UserResponseDto(entity))).orElse(null);
     }
 }

@@ -2,7 +2,7 @@ package com.example.ByteForge.config;
 
 import com.example.ByteForge.auth.signup.exceptions.InvalidOtpException;
 import com.example.ByteForge.auth.signup.exceptions.UserAlreadyExistsException;
-import com.example.ByteForge.common.SimpleMessageDto;
+import com.example.ByteForge.utility.SimpleMessageDto;
 import com.example.ByteForge.problems.exceptions.ProblemNotFoundException;
 import com.example.ByteForge.user.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;

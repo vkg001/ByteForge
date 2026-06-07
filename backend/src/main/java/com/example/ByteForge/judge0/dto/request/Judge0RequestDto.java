@@ -1,4 +1,4 @@
-package com.example.ByteForge.judge0.dto;
+package com.example.ByteForge.judge0.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Base64;

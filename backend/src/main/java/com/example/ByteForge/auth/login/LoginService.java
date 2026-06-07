@@ -2,7 +2,7 @@ package com.example.ByteForge.auth.login;
 
 import com.example.ByteForge.auth.AuthResponse;
 import com.example.ByteForge.user.UsersRepository;
-import com.example.ByteForge.jwt.JwtService;
+import com.example.ByteForge.config.jwt.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;

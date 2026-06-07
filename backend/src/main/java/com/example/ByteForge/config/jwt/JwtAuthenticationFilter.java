@@ -1,4 +1,4 @@
-package com.example.ByteForge.jwt;
+package com.example.ByteForge.config.jwt;
 import com.example.ByteForge.config.AppConfig;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

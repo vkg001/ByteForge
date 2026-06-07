@@ -1,5 +1,6 @@
 package com.example.ByteForge.user;
 
+import com.example.ByteForge.user.dto.response.UserResponseDto;
 import com.example.ByteForge.user.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +15,7 @@ public class UsersController {
     private UsersService service;
 
     @GetMapping("/{Id}")
-    public UserDto getUserDetails(@PathVariable("Id") Long Id) {
+    public UserResponseDto getUserDetails(@PathVariable("Id") Long Id) {
         var user = service.getUserDetailsById(Id);
         if (user.isEmpty()) throw new UserNotFoundException("Invalid user Id");
 
@@ -22,7 +23,7 @@ public class UsersController {
     }
 
     @GetMapping("/me")
-    public UserDto getMyDetails() {
+    public UserResponseDto getMyDetails() {
         return service.getCurrentUserDetails();
     }
 }

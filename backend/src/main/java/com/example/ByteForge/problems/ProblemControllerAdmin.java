@@ -1,8 +1,7 @@
 package com.example.ByteForge.problems;
 
-import com.example.ByteForge.common.SimpleMessageDto;
+import com.example.ByteForge.utility.SimpleMessageDto;
 import com.example.ByteForge.problems.dto.request.ProblemRequestDto;
-import com.example.ByteForge.problems.entities.ProblemEntity;
 import com.example.ByteForge.problems.mapper.ProblemMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

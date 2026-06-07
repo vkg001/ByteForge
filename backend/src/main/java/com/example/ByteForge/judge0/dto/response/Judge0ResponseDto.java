@@ -1,4 +1,4 @@
-package com.example.ByteForge.judge0.dto;
+package com.example.ByteForge.judge0.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

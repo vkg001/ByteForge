@@ -2,8 +2,8 @@ package com.example.ByteForge.submissions;
 
 import com.example.ByteForge.config.AppConfig;
 import com.example.ByteForge.judge0.Judge0Service;
-import com.example.ByteForge.judge0.dto.Judge0RequestDto;
-import com.example.ByteForge.judge0.dto.Judge0ResponseDto;
+import com.example.ByteForge.judge0.dto.request.Judge0RequestDto;
+import com.example.ByteForge.judge0.dto.response.Judge0ResponseDto;
 import com.example.ByteForge.problems.ProblemsService;
 import com.example.ByteForge.problems.entities.ProblemEntity;
 import com.example.ByteForge.problems.entities.TestCaseEntity;
@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.stream.Collectors;

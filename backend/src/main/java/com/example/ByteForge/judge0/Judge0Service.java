@@ -1,7 +1,7 @@
 package com.example.ByteForge.judge0;
 
-import com.example.ByteForge.judge0.dto.Judge0RequestDto;
-import com.example.ByteForge.judge0.dto.Judge0ResponseDto;
+import com.example.ByteForge.judge0.dto.request.Judge0RequestDto;
+import com.example.ByteForge.judge0.dto.response.Judge0ResponseDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
