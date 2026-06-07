@@ -39,7 +39,7 @@ public class Judge0Service {
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-//            log.warn("Raw Token Response: {}", response.body());
+            log.warn("Raw Token Response: {}", response.body());
             JsonNode root = objectMapper.readTree(response.body());
 
             return root.findValuesAsText("token");
@@ -49,7 +49,7 @@ public class Judge0Service {
     }
 
     public List<Judge0ResponseDto> getBatchResults(List<String> tokens) {
-//        log.warn("Tokens received to fetch status: {}", tokens);
+        log.warn("Tokens received to fetch status: {}", tokens);
         String tokenString = String.join(",", tokens);
         String url = judge0BaseUrl + "/submissions/batch?tokens=" + tokenString + "&base64_encoded=false";
 
@@ -65,7 +65,7 @@ public class Judge0Service {
 
                 allFinished = true;
                 for (JsonNode sub : submissions) {
-//                    log.warn("Raw Submission Body: {}", sub);
+                    log.warn("Raw Submission Body: {}", sub);
                     if (sub.get("status") == null  || sub.get("status").get("id") == null) continue;
 
                     int statusId = sub.get("status").get("id").asInt();

@@ -34,18 +34,24 @@ public class SubmissionEntity {
     private UserEntity user;
 
     @Column(nullable = false, updatable = false)
+    private int languageId;
+
+    @Column(nullable = false, updatable = false, columnDefinition = "TEXT")
     private String submissionCode; // code submitted by user
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(nullable = false, columnDefinition = "jsonb")
+    @OneToOne
+    @JoinColumn(nullable = true, name = "testcase_id")
     private TestCaseEntity failedOnTestCase;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false)
     private SubmissionStatus submissionStatus;
 
-    @Column(nullable = true, updatable = false)
+    @Column(nullable = true, updatable = false, columnDefinition = "TEXT")
     private String codeOutput;
+
+    @Column(nullable = true, updatable = false, columnDefinition = "TEXT")
+    private String userLogs;
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp

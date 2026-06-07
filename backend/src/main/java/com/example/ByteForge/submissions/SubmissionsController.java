@@ -1,8 +1,8 @@
 package com.example.ByteForge.submissions;
 
-import com.example.ByteForge.submissions.dto.SubmitCodeRequestDto;
-import com.example.ByteForge.submissions.dto.SubmitCodeResponseDto;
-import com.example.ByteForge.submissions.dto.SubmissionDto;
+import com.example.ByteForge.submissions.dto.request.SubmitCodeRequestDto;
+import com.example.ByteForge.submissions.dto.response.SubmitCodeResponseDto;
+import com.example.ByteForge.submissions.dto.response.SubmissionsListResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +15,7 @@ public class SubmissionsController {
     private SubmissionsService submissionsService;
 
     @GetMapping("/{problem_id}/submissions")
-    List<SubmissionDto> findSubmissionsByProblemAndUserId(@PathVariable("problem_id") Long id) {
+    List<SubmissionsListResponseDto> findSubmissionsByProblemAndUserId(@PathVariable("problem_id") Long id) {
         throw new RuntimeException("Unimplemented");
     }
 

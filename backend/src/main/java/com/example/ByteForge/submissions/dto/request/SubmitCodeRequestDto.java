@@ -1,4 +1,4 @@
-package com.example.ByteForge.submissions.dto;
+package com.example.ByteForge.submissions.dto.request;
 
 
 import lombok.AllArgsConstructor;

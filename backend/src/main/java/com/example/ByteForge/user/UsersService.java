@@ -45,6 +45,18 @@ public class UsersService  implements UserDetailsService {
         return new UserDto(userEntity);
     }
 
+    public UserEntity getCurrentUserDetailsInEntity() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null  ||  !authentication.isAuthenticated()  ||  "anonymousUser".equals(authentication.getPrincipal())) {
+            throw  new UserNotFoundException("Invalid Session. Details not available");
+        }
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        if (userDetails == null) throw  new UserNotFoundException("Invalid Session");
+        String email = userDetails.getUsername();
+
+        return repository.findByEmail(email);
+    }
+
     public Optional<UserDto> getUserDetailsById(Long Id) {
         var user = repository.findById(Id);
         return user.map(entity -> Optional.of(new UserDto(entity))).orElse(null);

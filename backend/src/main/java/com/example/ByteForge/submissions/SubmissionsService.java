@@ -6,13 +6,17 @@ import com.example.ByteForge.judge0.dto.Judge0RequestDto;
 import com.example.ByteForge.judge0.dto.Judge0ResponseDto;
 import com.example.ByteForge.problems.ProblemsService;
 import com.example.ByteForge.problems.entities.ProblemEntity;
+import com.example.ByteForge.problems.entities.TestCaseEntity;
 import com.example.ByteForge.problems.exceptions.ProblemNotFoundException;
-import com.example.ByteForge.submissions.dto.SubmitCodeRequestDto;
-import com.example.ByteForge.submissions.dto.SubmitCodeResponseDto;
+import com.example.ByteForge.submissions.dto.request.SubmitCodeRequestDto;
+import com.example.ByteForge.submissions.dto.response.SubmitCodeResponseDto;
 import com.example.ByteForge.submissions.entities.ProblemSubmissionStatus;
-import com.example.ByteForge.submissions.dto.SubmissionDto;
+import com.example.ByteForge.submissions.dto.response.SubmissionsListResponseDto;
 import com.example.ByteForge.submissions.entities.SubmissionEntity;
 import com.example.ByteForge.submissions.entities.SubmissionStatus;
+import com.example.ByteForge.user.UsersService;
+import jakarta.annotation.Nullable;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,9 +40,12 @@ public class SubmissionsService {
     @Autowired
     private AppConfig appConfig;
 
-    public SubmissionDto findSubmissionByProblemAndUserId(Long problemId, Long userId, Pageable pageable) {
+    @Autowired
+    private UsersService usersService;
+
+    public SubmissionsListResponseDto findSubmissionByProblemAndUserId(Long problemId, Long userId, Pageable pageable) {
         List<SubmissionEntity> submissions = repository.findSubmissionByProblemAndUserId(problemId, userId, pageable);
-        SubmissionDto res = new SubmissionDto();
+        SubmissionsListResponseDto res = new SubmissionsListResponseDto();
         res.setAllSubmissions(submissions);
 
         if (submissions.isEmpty()) {
@@ -57,20 +64,23 @@ public class SubmissionsService {
         return res;
     }
 
+    @Transactional
     public SubmitCodeResponseDto processSubmission(SubmitCodeRequestDto requestDto) {
         Long problemId = requestDto.getProblemId();
         int languageId = requestDto.getLanguageId();
         String sourceCode = requestDto.getSourceCode();
 
-        ProblemEntity problem = problemsService.findProblemById(problemId)
+        ProblemEntity problem = problemsService.findProblemByIdGetEntity(problemId)
                 .orElseThrow(() -> new ProblemNotFoundException("Invalid problem id"));
+
+        log.warn("Problem fet {}", problem);
 
         String finalSourceCode = problem.getBoilerPlateCodes().stream()
                 .filter(bp -> bp.getLanguageCode() == languageId)
                 .findFirst()
                 .map(bp -> bp.getPrependCode() + sourceCode + bp.getAppendCode())
                 .orElseThrow(() -> new ProblemNotFoundException("Invalid language code"));
-        log.warn("Final Source Code: {}", finalSourceCode);
+//        log.warn("Final Source Code: {}", finalSourceCode);
         int totalTestCases = problem.getTestCases().size();
 
         // 1. Map all test cases into a single batch request
@@ -100,6 +110,7 @@ public class SubmissionsService {
                 SubmitCodeResponseDto dto = new SubmitCodeResponseDto();
                 dto.setError(response.compileOutput());
                 dto.setStatus(SubmissionStatus.CE);
+                saveSubmission(problem, languageId, finalSourceCode, testCase, response);
                 return dto;
             }
 
@@ -107,6 +118,7 @@ public class SubmissionsService {
                 SubmitCodeResponseDto dto = new SubmitCodeResponseDto();
                 dto.setError(response.stderr());
                 dto.setStatus(SubmissionStatus.RTE);
+                saveSubmission(problem, languageId, finalSourceCode, testCase, response);
                 return dto;
             }
 
@@ -133,6 +145,8 @@ public class SubmissionsService {
                 } else if (response.getMappedStatus() == SubmissionStatus.TLE) {
                     dto.setError("Time Limit Exceeded");
                 }
+
+                saveSubmission(problem,languageId, finalSourceCode, testCase, response);
                 return dto;
             }
         }
@@ -145,6 +159,23 @@ public class SubmissionsService {
         if (!results.isEmpty()) {
             dto.setUserLogs(results.get(results.size() - 1).stderr());
         }
+
+        saveSubmission(problem, languageId, finalSourceCode, null, null);
         return dto;
+    }
+
+    public void saveSubmission(ProblemEntity problemEntity, int languageId, String submissionCode, TestCaseEntity failedTestCase, @Nullable Judge0ResponseDto executionResponse) {
+        SubmissionEntity submissionEntity = new SubmissionEntity();
+
+        submissionEntity.setProblem(problemEntity);
+        submissionEntity.setLanguageId(languageId);
+        submissionEntity.setUser(usersService.getCurrentUserDetailsInEntity());
+        submissionEntity.setSubmissionCode(submissionCode);
+        submissionEntity.setFailedOnTestCase(failedTestCase);
+        submissionEntity.setSubmissionStatus(executionResponse == null ? SubmissionStatus.ACC : executionResponse.getMappedStatus());
+        submissionEntity.setCodeOutput(executionResponse != null  &&  executionResponse.stdout() != null ? executionResponse.stdout().trim() : "");
+        submissionEntity.setUserLogs(executionResponse != null ? executionResponse.stderr() : "");
+
+        repository.save(submissionEntity);
     }
 }

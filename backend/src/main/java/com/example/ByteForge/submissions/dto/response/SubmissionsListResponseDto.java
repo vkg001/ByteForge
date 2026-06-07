@@ -1,4 +1,4 @@
-package com.example.ByteForge.submissions.dto;
+package com.example.ByteForge.submissions.dto.response;
 
 import com.example.ByteForge.submissions.entities.ProblemSubmissionStatus;
 import com.example.ByteForge.submissions.entities.SubmissionEntity;
@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubmissionDto {
+public class SubmissionsListResponseDto {
     private List<SubmissionEntity> allSubmissions = new ArrayList<>();
     private ProblemSubmissionStatus status;
 }

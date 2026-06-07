@@ -56,8 +56,7 @@ public class ProblemEntity {
     @Column(nullable = false, columnDefinition = "jsonb")
     private List<String> topics = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "testcases", joinColumns = @JoinColumn(name = "problem_id"))
+    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TestCaseEntity> testCases = new ArrayList<>();
 
     @Column(nullable = false)
@@ -72,5 +71,24 @@ public class ProblemEntity {
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "boilerplate_codes", joinColumns = @JoinColumn(name = "problem_id"))
-    private List<BoilerPlateCode> boilerPlateCodes = new ArrayList<>();
+    private List<BoilerPlateCodeEntity> boilerPlateCodes = new ArrayList<>();
+
+    public void setTestCases(List<TestCaseEntity> testCases) {
+        if (this.testCases == null) {
+            this.testCases = new ArrayList<>();
+        } else {
+            this.testCases.clear();
+        }
+
+        if (testCases != null) {
+            for (TestCaseEntity testCase : testCases) {
+                addTestCase(testCase);
+            }
+        }
+    }
+
+    public void addTestCase(TestCaseEntity testCase) {
+        testCases.add(testCase);
+        testCase.setProblem(this);
+    }
 }

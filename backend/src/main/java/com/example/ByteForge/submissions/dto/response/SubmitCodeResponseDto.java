@@ -1,4 +1,4 @@
-package com.example.ByteForge.submissions.dto;
+package com.example.ByteForge.submissions.dto.response;
 
 import com.example.ByteForge.submissions.entities.SubmissionStatus;
 import lombok.AllArgsConstructor;
