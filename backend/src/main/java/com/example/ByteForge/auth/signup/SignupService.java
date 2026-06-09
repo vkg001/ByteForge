@@ -7,12 +7,14 @@ import com.example.ByteForge.auth.signup.exceptions.UserAlreadyExistsException;
 import com.example.ByteForge.config.Constants;
 import com.example.ByteForge.auth.AuthResponse;
 import com.example.ByteForge.config.jwt.JwtService;
-import com.example.ByteForge.user.entities.UserEntity;
-import com.example.ByteForge.user.entities.UserRole;
-import com.example.ByteForge.user.UsersRepository;
+import com.example.ByteForge.user.core.entity.UserEntity;
+import com.example.ByteForge.user.core.enums.UserRole;
+import com.example.ByteForge.user.stats.events.UserRegisteredEvent;
+import com.example.ByteForge.user.core.repository.UsersRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,22 +25,18 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SignupService {
     private static final String SIGNUP_OTP_KEY = "signup-otp:";
     private static final String SIGNUP_USER_DETAILS_KEY = "signup-user-details:";
 
-    @Autowired
-    ObjectMapper objectMapper;
-    @Autowired
-    private UsersRepository repository;
-    @Autowired
-    private StringRedisTemplate redisTemplate;
-    @Autowired
-    private JwtService jwtService;
-    @Autowired
-    private OtpService otpService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final ObjectMapper objectMapper;
+    private final UsersRepository repository;
+    private final StringRedisTemplate redisTemplate;
+    private final JwtService jwtService;
+    private final OtpService otpService;
+    private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     Optional<OtpDto> sendOtp(SignupDto user) {
@@ -74,6 +72,7 @@ public class SignupService {
 
             if (repository.existsByEmail(user.getEmail())) throw new UserAlreadyExistsException();
             repository.save(user);
+            eventPublisher.publishEvent(new UserRegisteredEvent(user.getId()));
             String jwt = jwtService.generateToken(user.getEmail());
             return new AuthResponse(jwt);
         }

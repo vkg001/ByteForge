@@ -5,12 +5,11 @@ import com.example.ByteForge.problems.core.mappers.ProblemMapper;
 import com.example.ByteForge.problems.core.mappers.TestCaseMapper;
 import com.example.ByteForge.problems.core.entities.ProblemEntity;
 import com.example.ByteForge.problems.core.repositories.ProblemRepository;
-import com.example.ByteForge.problems.stats.entity.ProblemStatsEntity;
-import com.example.ByteForge.problems.stats.repository.ProblemStatsRepository;
-import com.example.ByteForge.problems.stats.service.ProblemStatsService;
+import com.example.ByteForge.problems.stats.events.ProblemSavedEvent;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,7 @@ public class ProblemService {
     private final ProblemRepository problemRepository;
     private final ProblemMapper problemMapper;
     private final TestCaseMapper testCaseMapper;
-    private final ProblemStatsRepository problemStatsRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public List<ProblemResponseDto> searchProblemByKeyword(String keyword, int pageNumber) {
@@ -61,22 +60,7 @@ public class ProblemService {
     @Transactional
     public void saveProblem(ProblemEntity problem) {
         problemRepository.save(problem);
-        initializeStats(problem);
-    }
-
-    private void initializeStats(ProblemEntity problemEntity) {
-        ProblemStatsEntity stats = new ProblemStatsEntity();
-
-        stats.setProblemEntity(problemEntity);
-
-        stats.setTotalSubmissions(0L);
-        stats.setTotalAccepted(0L);
-        stats.setTotalLikes(0L);
-        stats.setTotalComments(0L);
-        stats.setTotalSolutionsAvailable(0L);
-        stats.setTotalEditorialsAvailable(0L);
-        stats.setTotalStars(0L);
-
-        problemStatsRepository.save(stats);
+        ProblemSavedEvent event = new ProblemSavedEvent(problem.getId());
+        eventPublisher.publishEvent(event);
     }
 }

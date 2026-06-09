@@ -26,27 +26,15 @@ public class ProblemStatsService {
     }
 
     @Transactional
-    public void recordSubmission(Long problemId, boolean isAccepted) {
-        var res = problemStatsRepository.findByProblemEntity_Id(problemId);
-        if (res.isEmpty()) throw new ProblemNotFoundException("Invalid problem id");
-        ProblemStatsEntity stats = res.get();
-
-        stats.setTotalSubmissions(stats.getTotalSubmissions() + 1);
-        if (isAccepted) {
-            stats.setTotalAccepted(stats.getTotalAccepted() + 1);
-        }
-
-        problemStatsRepository.save(stats);
-    }
-
-    @Transactional
     public void incrementLikes(Long problemId) {
         var res = problemStatsRepository.findByProblemEntity_Id(problemId);
-        if (res.isEmpty()) throw new ProblemNotFoundException("Invalid problem id");
+
+        if (res.isEmpty()) {
+            throw new ProblemNotFoundException("Invalid problem id: " + problemId);
+        }
+
         ProblemStatsEntity stats = res.get();
         stats.setTotalLikes(stats.getTotalLikes() + 1);
         problemStatsRepository.save(stats);
     }
-
-
 }

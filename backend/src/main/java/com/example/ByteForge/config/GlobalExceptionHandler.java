@@ -4,7 +4,7 @@ import com.example.ByteForge.auth.signup.exceptions.InvalidOtpException;
 import com.example.ByteForge.auth.signup.exceptions.UserAlreadyExistsException;
 import com.example.ByteForge.utility.SimpleMessageDto;
 import com.example.ByteForge.problems.core.exceptions.ProblemNotFoundException;
-import com.example.ByteForge.user.exceptions.UserNotFoundException;
+import com.example.ByteForge.user.core.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
