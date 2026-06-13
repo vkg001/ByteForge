@@ -12,8 +12,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserResponseDto {
     String name;
+    Long id;
 
     public UserResponseDto(UserEntity entity) {
         this.name = entity.getName();
+        this.id = entity.getId();
     }
 }

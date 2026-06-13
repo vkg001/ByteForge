@@ -27,7 +27,6 @@ public class Judge0Service {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public List<String> submitBatch(List<Judge0RequestDto> requests) {
-        // Enforcing Base64 encoding
         String url = judge0BaseUrl + "/submissions/batch?base64_encoded=true";
 
         try {
@@ -42,17 +41,24 @@ public class Judge0Service {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             JsonNode root = objectMapper.readTree(response.body());
 
-            // Failsafe: check for top-level errors before parsing tokens
+            if (root.isArray() && !root.isEmpty() && !root.get(0).has("token")) {
+                throw new RuntimeException("Judge0 rejected the batch submission. Reason: " + root.toString());
+            }
+
             if (root.has("error")) {
                 throw new RuntimeException("Judge0 error during batch submission: " + root.toString());
             }
 
-            return root.findValuesAsText("token");
+            List<String> tokens = root.findValuesAsText("token");
+            if (tokens.isEmpty()) {
+                throw new RuntimeException("Judge0 returned a blank response without tokens. Body: " + root.toString());
+            }
+
+            return tokens;
         } catch (Exception e) {
             throw new RuntimeException("Failed to submit batch to Judge0: " + e.getMessage(), e);
         }
     }
-
     public List<Judge0ResponseDto> getBatchResults(List<String> tokens) {
         String tokenString = String.join(",", tokens);
         // Enforcing Base64 encoding

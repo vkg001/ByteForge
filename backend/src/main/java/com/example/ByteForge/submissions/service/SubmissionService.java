@@ -28,8 +28,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -64,18 +62,28 @@ public class SubmissionService {
 
     @Transactional
     public SubmitCodeResponseDto processSubmission(SubmitCodeRequestDto requestDto) {
-        Long problemId = requestDto.getProblemId();
-        int languageId = requestDto.getLanguageId();
-        String sourceCode = requestDto.getSourceCode();
-
-        ProblemEntity problem = problemService.findProblemByIdGetEntity(problemId)
+        ProblemEntity problem = problemService.findProblemByIdGetEntity(requestDto.getProblemId())
                 .orElseThrow(() -> new ProblemNotFoundException("Invalid problem id"));
 
-        String finalSourceCode = buildFinalSourceCode(problem, languageId, sourceCode);
-        List<Judge0ResponseDto> results = executeAgainstJudge0(problem, finalSourceCode, languageId);
+        String finalSourceCode = buildFinalSourceCode(problem, requestDto.getLanguageId(), requestDto.getSourceCode());
+        String combinedInput = buildCombinedInput(problem.getTestCases());
 
-        EvaluationResult evaluation = evaluateResults(problem.getTestCases(), results);
-        saveSubmission(problem, languageId, sourceCode, evaluation.failedTestCase(), evaluation.failedResponse());
+        Judge0RequestDto batchRequest = new Judge0RequestDto(
+                finalSourceCode,
+                requestDto.getLanguageId(),
+                combinedInput,
+                null,
+                (int)(problem.getTimeLimitInMS() / 1000),
+                (int) (problem.getMemoryLimitInMB() * 1024),
+                20.0
+        );
+
+        List<String> tokens = judge0Service.submitBatch(List.of(batchRequest));
+        Judge0ResponseDto response = judge0Service.getBatchResults(tokens).get(0);
+
+        EvaluationResult evaluation = evaluateSingleRun(problem, response);
+
+        saveSubmission(problem, requestDto.getLanguageId(), requestDto.getSourceCode(), evaluation.failedTestCase(), evaluation.failedResponse());
 
         return buildResponseDto(evaluation, problem.getTestCases().size());
     }
@@ -84,38 +92,74 @@ public class SubmissionService {
         return problem.getBoilerPlateCodes().stream()
                 .filter(bp -> bp.getLanguageCode() == languageId)
                 .findFirst()
-                .map(bp -> bp.getPrependCode() + sourceCode + bp.getAppendCode())
+                .map(bp -> bp.getPrependCode() + "\n" + sourceCode + "\n" + bp.getAppendCode())
                 .orElseThrow(() -> new ProblemNotFoundException("Invalid language code"));
     }
 
-    private List<Judge0ResponseDto> executeAgainstJudge0(ProblemEntity problem, String finalSourceCode, int languageId) {
-        List<Judge0RequestDto> batchRequests = problem.getTestCases().stream().map(testCase ->
-                new Judge0RequestDto(
-                        finalSourceCode, languageId, testCase.getInput(), testCase.getOutput(),
-                        problem.getTimeLimitInMS() / 1000.0, (int) (problem.getMemoryLimitInMB() * 1024), 5.0
-                )
-        ).collect(Collectors.toList());
-
-        List<String> tokens = judge0Service.submitBatch(batchRequests);
-        return judge0Service.getBatchResults(tokens);
+    private String buildCombinedInput(List<TestCaseEntity> testCases) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(testCases.size()).append("\n");
+        for (TestCaseEntity tc : testCases) {
+            sb.append(tc.getInput().trim()).append("\n");
+        }
+        return sb.toString();
     }
 
-    private EvaluationResult evaluateResults(List<TestCaseEntity> testCases, List<Judge0ResponseDto> results) {
+    private EvaluationResult evaluateSingleRun(ProblemEntity problem, Judge0ResponseDto response) {
+        SubmissionStatus globalStatus = response.getMappedStatus();
+        List<TestCaseEntity> testCases = problem.getTestCases();
+
+        if (globalStatus == SubmissionStatus.CE) {
+            return new EvaluationResult(globalStatus, 0, testCases.get(0), response);
+        }
+
+        String rawOutput = response.stdout() != null ? response.stdout() : "";
         int passed = 0;
 
-        for (int i = 0; i < results.size(); i++) {
-            Judge0ResponseDto response = results.get(i);
-            TestCaseEntity testCase = testCases.get(i);
-            SubmissionStatus status = response.getMappedStatus();
+        for (TestCaseEntity testCase : testCases) {
+            String beginTag = "~CASE_BEGIN~";
+            String endTag = "~CASE_END~";
 
-            if (status != SubmissionStatus.ACC) {
-                return new EvaluationResult(status, passed, testCase, response);
+            int beginIdx = rawOutput.indexOf(beginTag);
+            int endIdx = rawOutput.indexOf(endTag);
+
+            if (beginIdx == -1 || endIdx == -1 || beginIdx > endIdx) {
+                if (globalStatus == SubmissionStatus.TLE) {
+                    return new EvaluationResult(SubmissionStatus.TLE, passed, testCase, response);
+                }
+                return new EvaluationResult(SubmissionStatus.RTE, passed, testCase, response);
             }
+
+            String caseBlock = rawOutput.substring(beginIdx + beginTag.length(), endIdx).trim();
+            rawOutput = rawOutput.substring(endIdx + endTag.length());
+
+            int timeTagStart = caseBlock.indexOf("~TIME|");
+            int timeTagEnd = caseBlock.indexOf("~", timeTagStart + 6);
+
+            if (timeTagStart == -1 || timeTagEnd == -1) {
+                return new EvaluationResult(SubmissionStatus.RTE, passed, testCase, response);
+            }
+
+            try {
+                double executionTimeMs = Double.parseDouble(caseBlock.substring(timeTagStart + 6, timeTagEnd).trim());
+                if (executionTimeMs > problem.getTimeLimitInMS()) {
+                    return new EvaluationResult(SubmissionStatus.TLE, passed, testCase, response);
+                }
+            } catch (NumberFormatException e) {
+                return new EvaluationResult(SubmissionStatus.RTE, passed, testCase, response);
+            }
+
+            String actualOutput = caseBlock.substring(0, timeTagStart).trim();
+            String expectedOutput = testCase.getOutput() != null ? testCase.getOutput().trim() : "";
+
+            if (!actualOutput.equals(expectedOutput)) {
+                return new EvaluationResult(SubmissionStatus.WA, passed, testCase, response);
+            }
+
             passed++;
         }
 
-        Judge0ResponseDto lastResponse = results.isEmpty() ? null : results.get(results.size() - 1);
-        return new EvaluationResult(SubmissionStatus.ACC, passed, null, lastResponse);
+        return new EvaluationResult(SubmissionStatus.ACC, passed, null, response);
     }
 
     private SubmitCodeResponseDto buildResponseDto(EvaluationResult eval, int totalTestCases) {
@@ -126,21 +170,34 @@ public class SubmissionService {
 
         Judge0ResponseDto response = eval.failedResponse();
         if (response != null) {
-            dto.setCodeOutput(response.stdout() != null ? response.stdout().trim() : "");
+            if (response.stdout() != null) {
+                String cleanOutput = response.stdout()
+                        .replaceAll("~CASE_BEGIN~\\s*", "")
+                        .replaceAll("~CASE_END~\\s*", "")
+                        .replaceAll("~TIME\\|[0-9.]+\\s*~\\s*", "")
+                        .trim();
+                dto.setCodeOutput(cleanOutput);
+            } else {
+                dto.setCodeOutput("");
+            }
+
+            dto.setUserLogs(response.stderr() != null ? response.stderr().trim() : "");
 
             if (eval.status() == SubmissionStatus.CE) {
                 dto.setError(response.compileOutput());
                 return dto;
             }
+
             if (eval.status() == SubmissionStatus.RTE) {
-                dto.setError(response.stderr());
-                return dto;
+                String fallbackError = (response.stderr() != null && !response.stderr().trim().isEmpty())
+                        ? response.stderr().trim()
+                        : "Runtime Error / Process Crashed";
+                dto.setError(fallbackError);
+            } else if (eval.status() == SubmissionStatus.WA) {
+                dto.setError("Wrong Answer");
+            } else if (eval.status() == SubmissionStatus.TLE) {
+                dto.setError("Time Limit Exceeded");
             }
-
-            dto.setUserLogs(response.stderr());
-
-            if (eval.status() == SubmissionStatus.WA) dto.setError("Wrong Answer");
-            if (eval.status() == SubmissionStatus.TLE) dto.setError("Time Limit Exceeded");
         }
 
         TestCaseEntity testCase = eval.failedTestCase();
@@ -171,7 +228,7 @@ public class SubmissionService {
         submissionEntity.setCodeOutput(executionResponse != null && executionResponse.stdout() != null ? executionResponse.stdout().trim() : "");
         submissionEntity.setUserLogs(executionResponse != null ? executionResponse.stderr() : "");
 
-        Boolean accepted = executionResponse == null  ||  executionResponse.getMappedStatus() == SubmissionStatus.ACC;
+        Boolean accepted = executionResponse != null && executionResponse.getMappedStatus() == SubmissionStatus.ACC;
         SubmissionEvent event = new SubmissionEvent(problemEntity.getId(), accepted);
         eventPublisher.publishEvent(event);
         repository.save(submissionEntity);
