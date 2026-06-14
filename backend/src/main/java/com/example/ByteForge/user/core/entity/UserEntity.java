@@ -45,10 +45,10 @@ public class UserEntity {
     @CreationTimestamp
     private LocalDateTime createdDateTime;
 
-
     public UserEntity(SignupDto userData) {
         this.name = userData.getName();
         this.email = userData.getEmail();
         this.password = userData.getPassword();
+        this.userRole = UserRole.USER;
     }
 }

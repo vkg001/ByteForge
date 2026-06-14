@@ -7,13 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CurrentTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_stats") // FIXED: Use @Table for table naming, not the name attribute in @Entity
+@Table(name = "user_stats")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,8 +32,7 @@ public class UserStats {
     @OneToOne(mappedBy = "userStats", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
     private SolvedProblemStatsEntity problemStats;
 
-    @Column(nullable = false)
-    @CurrentTimestamp
+    @Column(nullable = true)
     private LocalDateTime lastSubmissionDate;
 
     @Column(nullable = false)

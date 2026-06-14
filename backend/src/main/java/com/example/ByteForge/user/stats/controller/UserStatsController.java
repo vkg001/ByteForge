@@ -16,7 +16,7 @@ public class UserStatsController {
 
     private final UserStatsService userStatsService;
 
-    @GetMapping("/{userId}/stats")
+    @GetMapping("/{userId}")
     public ResponseEntity<UserStatsResponseDto> getUserStats(@PathVariable Long userId) {
         return userStatsService.getStatsByUserId(userId)
                 .map(ResponseEntity::ok)

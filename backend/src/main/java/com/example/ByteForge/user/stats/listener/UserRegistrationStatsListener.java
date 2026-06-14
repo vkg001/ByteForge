@@ -2,6 +2,7 @@ package com.example.ByteForge.user.stats.listener;
 
 import com.example.ByteForge.problems.solved.entity.SolvedProblemStatsEntity;
 import com.example.ByteForge.user.core.entity.UserEntity;
+import com.example.ByteForge.user.core.repository.UsersRepository;
 import com.example.ByteForge.user.stats.events.UserRegisteredEvent;
 import com.example.ByteForge.user.stats.entity.UserStats;
 import com.example.ByteForge.user.stats.repository.UserStatsRepository;
@@ -16,14 +17,14 @@ import org.springframework.stereotype.Component;
 public class UserRegistrationStatsListener {
 
     private final UserStatsRepository userStatsRepository;
+    private final UsersRepository usersRepository;
 
     @EventListener
     public void handleUserRegistered(UserRegisteredEvent event) {
         if (userStatsRepository.findByUserEntity_Id(event.userId()).isEmpty()) {
             log.info("Initializing UserStats for new user ID: {}", event.userId());
 
-            UserEntity userReference = new UserEntity();
-            userReference.setId(event.userId());
+            UserEntity userReference = usersRepository.getReferenceById(event.userId());
 
             UserStats stats = new UserStats();
             stats.setUserEntity(userReference);

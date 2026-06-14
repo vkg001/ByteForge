@@ -17,7 +17,8 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-public class UsersService  implements UserDetailsService {
+public class UserService implements UserDetailsService {
+
     @Autowired
     private UsersRepository repository;
 
@@ -28,7 +29,7 @@ public class UsersService  implements UserDetailsService {
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getEmail())
                     .password(user.getPassword())
-                    .authorities(user.getUserRole().toString()) // DO NOT LEAVE THIS EMPTY
+                    .authorities(user.getUserRole().toString())
                     .build();
         }
         throw new UsernameNotFoundException(email);
@@ -36,32 +37,28 @@ public class UsersService  implements UserDetailsService {
 
     public UserResponseDto getCurrentUserDetails() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null  ||  !authentication.isAuthenticated()  ||  "anonymousUser".equals(authentication.getPrincipal())) {
-            throw  new UserNotFoundException("Invalid Session. Details not available");
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new UserNotFoundException("Invalid Session. Details not available");
         }
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        if (userDetails == null) throw  new UserNotFoundException("Invalid Session");
-        String email = userDetails.getUsername();
+        if (userDetails == null) throw new UserNotFoundException("Invalid Session");
 
-        UserEntity userEntity = repository.findByEmail(email);
-        userEntity.setPassword("");
+        UserEntity userEntity = repository.findByEmail(userDetails.getUsername());
         return new UserResponseDto(userEntity);
     }
 
     public UserEntity getCurrentUserDetailsInEntity() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null  ||  !authentication.isAuthenticated()  ||  "anonymousUser".equals(authentication.getPrincipal())) {
-            throw  new UserNotFoundException("Invalid Session. Details not available");
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new UserNotFoundException("Invalid Session. Details not available");
         }
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        if (userDetails == null) throw  new UserNotFoundException("Invalid Session");
-        String email = userDetails.getUsername();
+        if (userDetails == null) throw new UserNotFoundException("Invalid Session");
 
-        return repository.findByEmail(email);
+        return repository.findByEmail(userDetails.getUsername());
     }
 
-    public Optional<UserResponseDto> getUserDetailsById(Long Id) {
-        var user = repository.findById(Id);
-        return user.map(UserResponseDto::new);
+    public Optional<UserResponseDto> getUserDetailsById(Long id) {
+        return repository.findById(id).map(UserResponseDto::new);
     }
 }

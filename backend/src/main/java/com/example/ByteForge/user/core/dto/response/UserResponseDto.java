@@ -11,8 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserResponseDto {
-    String name;
-    Long id;
+    private String name;
+    private Long id;
 
     public UserResponseDto(UserEntity entity) {
         this.name = entity.getName();

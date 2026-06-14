@@ -26,7 +26,7 @@ public class OtpService {
             log.warn("Generated OTP: {}", otp);
         }
 
-        String redisKey = saveKey + email;
+        String redisKey = "SAVE_KEY:" + saveKey + ":EMAIL:" + email + ":";
         redisTemplate.opsForValue().set(
                 redisKey,
                 String.valueOf(otp),
@@ -40,10 +40,11 @@ public class OtpService {
     }
 
     public Optional<Boolean> verifyOtp(String otp, String email, String saveKey) {
-        String org_otp = redisTemplate.opsForValue().get(saveKey + email);
+        String redisKey = "SAVE_KEY:" + saveKey + ":EMAIL:" + email + ":";
+        String org_otp = redisTemplate.opsForValue().get(redisKey);
         if (org_otp == null) throw new InvalidOtpException("OTP Expired");
         if (otp.equals(org_otp)) {
-            redisTemplate.opsForValue().getAndDelete(saveKey + email);
+            redisTemplate.opsForValue().getAndDelete(redisKey);
             return Optional.of(true);
         }
 

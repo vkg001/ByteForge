@@ -21,4 +21,6 @@ public class UserStatsService {
         return userStatsRepository.findByUserEntity_Id(userId)
                 .map(userStatsMapper::toResponseDto);
     }
+
+
 }

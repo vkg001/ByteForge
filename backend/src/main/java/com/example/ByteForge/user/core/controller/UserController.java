@@ -2,8 +2,8 @@ package com.example.ByteForge.user.core.controller;
 
 import com.example.ByteForge.user.core.dto.response.UserResponseDto;
 import com.example.ByteForge.user.core.exception.UserNotFoundException;
-import com.example.ByteForge.user.core.service.UsersService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.ByteForge.user.core.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,16 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/user")
-public class UsersController {
-    @Autowired
-    private UsersService service;
+@RequiredArgsConstructor
+public class UserController {
 
-    @GetMapping("/{Id}")
-    public UserResponseDto getUserDetails(@PathVariable("Id") Long Id) {
-        var user = service.getUserDetailsById(Id);
-        if (user.isEmpty()) throw new UserNotFoundException("Invalid user Id");
+    private final UserService service;
 
-        return user.get();
+    @GetMapping("/{id}")
+    public UserResponseDto getUserDetails(@PathVariable("id") Long id) {
+        return service.getUserDetailsById(id)
+                .orElseThrow(() -> new UserNotFoundException("Invalid user Id"));
     }
 
     @GetMapping("/me")

@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface SolvedProblemRepository extends JpaRepository<SolvedProblemEntity, Long> {
-    Optional<SolvedProblemEntity> findByProblemEntity_IdAndUserEntity_Id(Long problemId, Long userId);
+
+    Optional<SolvedProblemEntity> findByProblemEntityIdAndUserEntityId(Long problemId, Long userId);
 }
