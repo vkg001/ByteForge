@@ -25,4 +25,6 @@ public class UserStatsResponseDto {
     private Long reputation;
     private Long totalComments;
     private Long totalSolutionsAdded;
+    private Integer maxStreak;
+    private Integer currentStreak;
 }

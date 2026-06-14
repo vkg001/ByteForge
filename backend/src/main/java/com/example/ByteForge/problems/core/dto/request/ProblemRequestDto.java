@@ -1,6 +1,7 @@
 package com.example.ByteForge.problems.core.dto.request;
 
 import com.example.ByteForge.problems.core.enums.ProblemDifficulty;
+import com.example.ByteForge.problems.core.enums.ProblemVisibility;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,7 @@ public class ProblemRequestDto {
     private List<TestCaseRequestDto> testCases = new ArrayList<>();
     private Long memoryLimitInMB;
     private Long timeLimitInMS;
+    private ProblemVisibility problemVisibility;
     private List<Long> similarQuestions = new ArrayList<>();
     private List<BoilerplateCodeRequestDto> boilerPlateCodes = new ArrayList<>();
 }

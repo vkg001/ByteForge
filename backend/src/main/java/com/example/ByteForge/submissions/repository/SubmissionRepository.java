@@ -17,6 +17,9 @@ public interface SubmissionRepository extends JpaRepository<SubmissionEntity, Lo
     @Query(value = "Select * from submissions WHERE problem_id = :problemId AND register_id = :userId ORDER BY id DESC", nativeQuery = true)
     List<SubmissionEntity> findSubmissionByProblemAndUserId(@Param("problemId") Long problemId, @Param("userId") Long userId, Pageable pageable);
 
+    @Query(value = "Select * from submissions WHERE problem_id = :problemId AND register_id = :userId AND submission_visibility = 'PUBLIC' ORDER BY id DESC", nativeQuery = true)
+    List<SubmissionEntity> findSubmissionByProblemAndUserIdForPublic(@Param("problemId") Long problemId, @Param("userId") Long userId, Pageable pageable);
+
     @Query(value = "Select * from submissions WHERE problem_id = :problemId AND register_id = :userId AND status = :status ORDER BY id DESC", nativeQuery = true)
     Optional<SubmissionEntity> findSubmissionByProblemUserIdAndStatus(@Param("problemId") Long problemId, @Param("userId") Long userId, @Param("status") SubmissionStatus status);
 }

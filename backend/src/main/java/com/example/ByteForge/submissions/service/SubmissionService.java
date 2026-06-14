@@ -4,6 +4,7 @@ import com.example.ByteForge.config.AppConfig;
 import com.example.ByteForge.judge0.Judge0Service;
 import com.example.ByteForge.judge0.dto.request.Judge0RequestDto;
 import com.example.ByteForge.judge0.dto.response.Judge0ResponseDto;
+import com.example.ByteForge.problems.core.enums.ProblemVisibility;
 import com.example.ByteForge.problems.core.services.ProblemService;
 import com.example.ByteForge.problems.core.entities.ProblemEntity;
 import com.example.ByteForge.problems.core.entities.TestCaseEntity;
@@ -13,6 +14,7 @@ import com.example.ByteForge.problems.stats.service.ProblemStatsService;
 import com.example.ByteForge.submissions.dto.request.RunCodeRequestDto;
 import com.example.ByteForge.submissions.dto.response.CustomTestCaseResultDto;
 import com.example.ByteForge.submissions.dto.response.RunCodeResponseDto;
+import com.example.ByteForge.submissions.enums.SubmissionVisibility;
 import com.example.ByteForge.submissions.events.SubmissionEvent;
 import com.example.ByteForge.submissions.events.SubmissionUserEvent;
 import com.example.ByteForge.submissions.repository.SubmissionRepository;
@@ -45,11 +47,10 @@ public class SubmissionService {
     private final AppConfig appConfig;
     private final UserService userService;
     private final SubmissionMapper submissionMapper;
-    private final ProblemStatsService problemStatsService;
     private final ApplicationEventPublisher eventPublisher;
 
     public SubmissionListResponseDto findSubmissionByProblemAndUserId(Long problemId, Long userId, Pageable pageable) {
-        List<SubmissionEntity> submissions = repository.findSubmissionByProblemAndUserId(problemId, userId, pageable);
+        List<SubmissionEntity> submissions = userService.getCurrentUserDetails().getId() != userId ? repository.findSubmissionByProblemAndUserIdForPublic(problemId, userId, pageable) : repository.findSubmissionByProblemAndUserId(problemId, userId, pageable);
         SubmissionListResponseDto res = new SubmissionListResponseDto();
         res.setAllSubmissions(submissionMapper.toResponseDtoList(submissions));
 
@@ -222,6 +223,14 @@ public class SubmissionService {
         SubmissionEntity submissionEntity = new SubmissionEntity();
         submissionEntity.setProblem(problemEntity);
         submissionEntity.setLanguageId(languageId);
+        SubmissionVisibility vis;
+        switch (problemEntity.getProblemVisibility()) {
+            case PUBLIC -> vis = SubmissionVisibility.PUBLIC;
+            case PREMIUM -> vis = SubmissionVisibility.PREMIUM;
+            case CONTEST -> vis = SubmissionVisibility.CONTEST;
+            default -> vis = SubmissionVisibility.HIDDEN;
+        }
+        submissionEntity.setSubmissionVisibility(vis);
         UserEntity userEntity = userService.getCurrentUserDetailsInEntity();
         submissionEntity.setUser(userEntity);
         submissionEntity.setSubmissionCode(submissionCode);
@@ -321,7 +330,7 @@ public class SubmissionService {
             }
 
             tcResult.setUserOutput(caseBlock.substring(logsTagStart + 11, funcOutTagStart).trim());
-            tcResult.setFunctionOutput(caseBlock.substring(funcOutTagStart + 10, timeTagStart).trim());
+            tcResult.setCodeOutput(caseBlock.substring(funcOutTagStart + 10, timeTagStart).trim());
 
             try {
                 double executionTimeMs = Double.parseDouble(caseBlock.substring(timeTagStart + 6, timeTagEnd).trim());

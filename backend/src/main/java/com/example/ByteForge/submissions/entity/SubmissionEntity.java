@@ -1,6 +1,7 @@
 package com.example.ByteForge.submissions.entity;
 
 import com.example.ByteForge.submissions.enums.SubmissionStatus;
+import com.example.ByteForge.submissions.enums.SubmissionVisibility;
 import com.example.ByteForge.user.core.entity.UserEntity;
 import com.example.ByteForge.problems.core.entities.ProblemEntity;
 import com.example.ByteForge.problems.core.entities.TestCaseEntity;
@@ -55,4 +56,8 @@ public class SubmissionEntity {
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime submissionDateTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, updatable = true)
+    private SubmissionVisibility submissionVisibility;
 }

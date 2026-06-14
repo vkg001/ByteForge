@@ -1,6 +1,7 @@
 package com.example.ByteForge.problems.core.entities;
 
 import com.example.ByteForge.problems.core.enums.ProblemDifficulty;
+import com.example.ByteForge.problems.core.enums.ProblemVisibility;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -72,6 +73,10 @@ public class ProblemEntity {
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "boilerplate_codes", joinColumns = @JoinColumn(name = "problem_id"))
     private List<BoilerplateCodeEntity> boilerPlateCodes = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, updatable = true)
+    private ProblemVisibility problemVisibility;
 
     public void setTestCases(List<TestCaseEntity> testCases) {
         if (this.testCases == null) {

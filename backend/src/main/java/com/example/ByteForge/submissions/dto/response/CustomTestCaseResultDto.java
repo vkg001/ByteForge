@@ -7,7 +7,7 @@ import lombok.Data;
 public class CustomTestCaseResultDto {
     private String input;
     private SubmissionStatus status;
-    private String functionOutput;
+    private String codeOutput;
     private String userOutput;
     private Double executionTimeMs;
 }

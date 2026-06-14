@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ProblemRepository extends JpaRepository<ProblemEntity, Long> {
-
-    @Query(value = "Select * FROM problems WHERE problem_title % :keyword ORDER BY similarity (problem_title, :keyword) DESC", nativeQuery = true)
+    @Query(value = "Select * FROM problems WHERE problem_title % :keyword AND problem_visibility = 'PUBLIC' ORDER BY similarity (problem_title, :keyword) DESC", nativeQuery = true)
     List<ProblemEntity> searchProblemsByKeyword(@Param("keyword") String keyword, Pageable pageable);
 }

@@ -47,4 +47,10 @@ public class UserStats {
 
     @Column(nullable = false)
     private Long totalSolutionsAdded = 0L;
+
+    @Column(nullable = false)
+    private Integer currentStreak = 0;
+
+    @Column(nullable = false)
+    private Integer maxStreak = 0;
 }

@@ -24,6 +24,7 @@ public class ProblemMapper {
         ProblemEntity entity = new ProblemEntity();
         entity.setProblemTitle(dto.getProblemTitle());
         entity.setProblemStatement(dto.getProblemStatement());
+        entity.setProblemVisibility(dto.getProblemVisibility());
 
         // Deep copy lists to avoid reference mutations
         entity.setConstraints(dto.getConstraints() != null ? new ArrayList<>(dto.getConstraints()) : new ArrayList<>());

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @Slf4j
 @Component
@@ -24,17 +25,30 @@ public class UserSubmissionStatsListener {
     @Transactional
     @EventListener
     public void recordUserSubmission(SubmissionUserEvent event) {
-        // 1. Update overall User Stats
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+
         UserStats stats = userStatsRepository.findByUserEntity_Id(event.userId())
                 .orElseThrow(() -> new IllegalStateException("Critical data integrity failure: UserStats missing for user ID " + event.userId()));
 
+        LocalDate lastSubmissionDay = stats.getLastSubmissionDate() != null
+                ? stats.getLastSubmissionDate().atZone(ZoneOffset.UTC).toLocalDate()
+                : null;
+
+        if (lastSubmissionDay == null || lastSubmissionDay.isBefore(today.minusDays(1))) {
+            stats.setCurrentStreak(1);
+        } else if (lastSubmissionDay.isEqual(today.minusDays(1))) {
+            stats.setCurrentStreak(stats.getCurrentStreak() + 1);
+        }
+
+        if (stats.getCurrentStreak() > stats.getMaxStreak()) {
+            stats.setMaxStreak(stats.getCurrentStreak());
+        }
+
         stats.setTotalSubmissions(stats.getTotalSubmissions() + 1);
-        stats.setLastSubmissionDate(LocalDateTime.now());
+        stats.setLastSubmissionDate(LocalDateTime.now(ZoneOffset.UTC));
         userStatsRepository.save(stats);
 
         // 2. Update Daily Calendar Activity
-        LocalDate today = LocalDate.now();
-
         CalendarActivityEntity dailyActivity = calendarActivityRepository
                 .findByUserIdAndActivityDate(event.userId(), today)
                 .orElseGet(() -> CalendarActivityEntity.builder()

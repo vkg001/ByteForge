@@ -36,6 +36,8 @@ public class UserStatsMapper {
         dto.setReputation(entity.getReputation());
         dto.setTotalComments(entity.getTotalComments());
         dto.setTotalSolutionsAdded(entity.getTotalSolutionsAdded());
+        dto.setCurrentStreak(entity.getCurrentStreak());
+        dto.setMaxStreak(entity.getMaxStreak());
 
         return dto;
     }
