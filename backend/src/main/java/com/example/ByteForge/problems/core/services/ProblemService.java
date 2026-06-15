@@ -33,7 +33,7 @@ public class ProblemService {
     @Transactional
     public List<ProblemResponseDto> searchProblemByKeyword(String keyword, int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber, PROBLEMS_PER_PAGE);
-        List<ProblemEntity> entities = problemRepository.searchProblemsByKeyword(keyword, pageable);
+        List<ProblemEntity> entities = keyword.trim().isEmpty() ? problemRepository.findAll(pageable).getContent() : problemRepository.searchProblemsByKeyword(keyword, pageable);
 
         return entities.stream()
                 .map(entity -> {

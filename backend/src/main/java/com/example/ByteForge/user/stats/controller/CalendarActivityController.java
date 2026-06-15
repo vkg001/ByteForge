@@ -1,5 +1,6 @@
 package com.example.ByteForge.user.stats.controller;
 
+import com.example.ByteForge.user.core.service.UserService;
 import com.example.ByteForge.user.stats.dto.response.CalendarActivityResponse;
 import com.example.ByteForge.user.stats.repository.CalendarActivityRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,17 +11,28 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/user/stats/{userId}/calendar")
+@RequestMapping("/api/user/stats")
 @RequiredArgsConstructor
 public class CalendarActivityController {
 
     private final CalendarActivityRepository calendarActivityRepository;
+    private final UserService userService;
 
-    @GetMapping
+    @GetMapping("/{userId}/calendar")
     public ResponseEntity<List<CalendarActivityResponse>> getUserCalendar(
             @PathVariable Long userId,
             @RequestParam(required = false) Integer year) {
 
+        return _getUserCalendar(userId, year);
+    }
+
+    @GetMapping("/me/calendar")
+    public ResponseEntity<List<CalendarActivityResponse>> getUserCalendarMe(@RequestParam(required = false) Integer year) {
+        return _getUserCalendar(userService.getCurrentUserDetails().getId(), year);
+    }
+
+
+    private ResponseEntity<List<CalendarActivityResponse>> _getUserCalendar(Long userId, Integer year) {
         LocalDate startDate;
         LocalDate endDate;
 

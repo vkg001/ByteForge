@@ -53,6 +53,7 @@ public class ProblemMapper {
         }
 
         ProblemResponseDto dto = new ProblemResponseDto();
+        dto.setId(entity.getId());
         dto.setProblemTitle(entity.getProblemTitle());
         dto.setProblemStatement(entity.getProblemStatement());
 

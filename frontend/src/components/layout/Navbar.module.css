@@ -1,0 +1,409 @@
+/* ── Navbar shell ── */
+.nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: 3.5rem;
+    width: 100%;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav.scrolled {
+    box-shadow: 0 1px 0 0 var(--border-color), 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Left group ── */
+.left {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+/* ── Brand ── */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.brandMark {
+    width: 30px;
+    height: 30px;
+    background: var(--accent);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent-text);
+    font-family: 'Courier New', monospace;
+    letter-spacing: -1px;
+    flex-shrink: 0;
+}
+
+.brandName {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+/* ── Desktop nav links ── */
+.navLinks {
+    display: none;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+@media (min-width: 768px) {
+    .navLinks {
+        display: flex;
+    }
+}
+
+.navLink {
+    position: relative;
+    padding: 0.35rem 0.65rem;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+    letter-spacing: 0.005em;
+}
+
+.navLink:hover {
+    color: var(--text-primary);
+    background: var(--bg-input);
+}
+
+.navLink.active {
+    color: var(--text-primary);
+}
+
+.navLink.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    /* sits right on the nav border */
+    left: 0.65rem;
+    right: 0.65rem;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 999px;
+}
+
+/* ── Right group ── */
+.right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* ── Theme toggle ── */
+.themeToggle {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    flex-shrink: 0;
+}
+
+.themeToggle:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(226, 183, 20, 0.06);
+}
+
+/* ── Auth buttons (logged out) ── */
+.btnSignIn {
+    padding: 0.4rem 0.85rem;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btnSignIn:hover {
+    color: var(--text-primary);
+    border-color: var(--text-muted);
+    background: var(--bg-input);
+}
+
+.btnSignUp {
+    padding: 0.4rem 0.85rem;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--accent-text);
+    background: var(--accent);
+    border: 1px solid transparent;
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, transform 0.1s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btnSignUp:hover {
+    background: var(--accent-hover);
+}
+
+.btnSignUp:active {
+    transform: scale(0.98);
+}
+
+/* ── Avatar + dropdown ── */
+.avatarWrap {
+    position: relative;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--accent-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    font-family: 'Courier New', monospace;
+    transition: opacity 0.15s, box-shadow 0.15s;
+    flex-shrink: 0;
+}
+
+.avatar:hover {
+    box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 3.5px var(--accent);
+}
+
+/* Dropdown */
+.dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    width: 200px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.03);
+    overflow: hidden;
+    /* Animation */
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.dropdown.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.dropdownHeader {
+    padding: 0.75rem 1rem 0.6rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dropdownName {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdownEmail {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdownBody {
+    padding: 0.35rem 0;
+}
+
+.dropdownItem {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 1rem;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.1s, color 0.1s;
+}
+
+.dropdownItem:hover {
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+.dropdownItem.danger {
+    color: #ef4444;
+}
+
+.dropdownItem.danger:hover {
+    background: rgba(239, 68, 68, 0.07);
+    color: #ef4444;
+}
+
+.dropdownDivider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 0.35rem 0;
+}
+
+/* ── Mobile hamburger ── */
+.hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.hamburger:hover {
+    color: var(--text-primary);
+    border-color: var(--text-muted);
+}
+
+@media (min-width: 768px) {
+    .hamburger {
+        display: none;
+    }
+}
+
+/* ── Mobile drawer ── */
+.mobileDrawer {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    pointer-events: none;
+}
+
+.mobileOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.mobileDrawer.open .mobileOverlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.mobilePanel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border-color);
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.mobileDrawer.open .mobilePanel {
+    transform: translateX(0);
+}
+
+.mobilePanelHeader {
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    padding: 0 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.mobilePanelLinks {
+    padding: 0.75rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    flex: 1;
+}
+
+.mobileNavLink {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: background 0.1s, color 0.1s;
+}
+
+.mobileNavLink:hover,
+.mobileNavLink.active {
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+.mobileNavLink.active {
+    color: var(--accent);
+}
+
+.mobilePanelFooter {
+    padding: 0.75rem;
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+}

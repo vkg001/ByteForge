@@ -1,0 +1,354 @@
+/* ── Page ── */
+.page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem;
+}
+
+/* ── Header ── */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.titleWrap {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.problemCount {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+/* ── Toolbar (search + filters) ── */
+.toolbar {
+    display: flex;
+    gap: 0.65rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.searchWrap {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+    max-width: 320px;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 0.45rem 0.75rem 0.45rem 2.1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.searchInput::placeholder {
+    color: var(--text-muted);
+}
+
+.searchInput:focus {
+    border-color: var(--accent);
+}
+
+/* ── Difficulty filter pills ── */
+.filterGroup {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.filterPill {
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.filterPill:hover {
+    border-color: var(--text-muted);
+    color: var(--text-primary);
+}
+
+.filterPill.active {
+    background: rgba(226, 183, 20, 0.1);
+    border-color: rgba(226, 183, 20, 0.4);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.filterPill.activeEasy {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.4);
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.filterPill.activeMedium {
+    background: rgba(226, 183, 20, 0.1);
+    border-color: rgba(226, 183, 20, 0.4);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.filterPill.activeHard {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* ── Table card ── */
+.tableCard {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* ── Table head ── */
+.thead {
+    background: var(--bg-base);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.th {
+    padding: 0.6rem 1rem;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.thStatus {
+    width: 48px;
+    padding-left: 1.25rem;
+}
+
+.thNum {
+    width: 52px;
+}
+
+.thDiff {
+    width: 96px;
+}
+
+.thTopics {
+    display: none;
+}
+
+@media (min-width: 640px) {
+    .thTopics {
+        display: table-cell;
+    }
+}
+
+/* ── Table rows ── */
+.tr {
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background 0.12s ease;
+}
+
+.tr:last-child {
+    border-bottom: none;
+}
+
+.tr:hover {
+    background: var(--bg-input);
+}
+
+.tr:hover .problemTitle {
+    color: var(--accent);
+}
+
+/* ── Cells ── */
+.tdStatus {
+    padding: 0.85rem 0.5rem 0.85rem 1.25rem;
+    width: 48px;
+}
+
+.statusDot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-color);
+    transition: border-color 0.12s;
+}
+
+.statusDot.solved {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: #22c55e;
+    position: relative;
+}
+
+.statusDot.solved::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: #22c55e;
+}
+
+.tdNum {
+    padding: 0.85rem 0.25rem;
+    width: 52px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.tdTitle {
+    padding: 0.85rem 1rem 0.85rem 0;
+}
+
+.problemTitle {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: color 0.12s ease;
+    line-height: 1.35;
+}
+
+.tdDiff {
+    padding: 0.85rem 1rem;
+    width: 96px;
+}
+
+.diffBadge {
+    display: inline-block;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+}
+
+.diffEasy {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.diffMedium {
+    background: rgba(226, 183, 20, 0.1);
+    color: var(--accent);
+}
+
+.diffHard {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.tdTopics {
+    padding: 0.85rem 1rem;
+    display: none;
+}
+
+@media (min-width: 640px) {
+    .tdTopics {
+        display: table-cell;
+    }
+}
+
+.topicsWrap {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+}
+
+.topicTag {
+    font-size: 11px;
+    padding: 0.15rem 0.5rem;
+    background: var(--bg-base);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    border-radius: 4px;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+/* ── States: loading / empty ── */
+.stateRow td {
+    padding: 3.5rem 1rem;
+    text-align: center;
+}
+
+.spinnerRing {
+    width: 28px;
+    height: 28px;
+    border: 2.5px solid var(--border-color);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.emptyIcon {
+    font-size: 28px;
+    opacity: 0.35;
+    margin-bottom: 0.25rem;
+}
+
+.emptyTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.emptyHint {
+    font-size: 12.5px;
+    color: var(--text-muted);
+}

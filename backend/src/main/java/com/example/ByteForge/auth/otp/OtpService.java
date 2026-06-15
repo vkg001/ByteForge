@@ -2,6 +2,7 @@ package com.example.ByteForge.auth.otp;
 
 import com.example.ByteForge.auth.signup.exceptions.InvalidOtpException;
 import com.example.ByteForge.config.Constants;
+import com.example.ByteForge.email.EmailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,8 +17,12 @@ import java.util.concurrent.TimeUnit;
 public class OtpService {
     @Autowired
     private StringRedisTemplate redisTemplate;
+
     @Value("${spring.profiles.active}")
     private String profileUsed;
+
+    @Autowired
+    private EmailService emailService;
 
     public boolean sendOtp(String email, String saveKey) {
         int otp = ((int)(Math.random() * 1000000));
@@ -35,6 +40,7 @@ public class OtpService {
         );
 
         // logic to send on email
+        emailService.sendEmail(email, "OTP -- ByteForge Coding", "OTP for verification: " + String.valueOf(otp) + ".<br>OTP is valid for 5 minutes only, if you have not requested the OTP kindly ignore and do not share the OTP with anyone.<br>Thanks,<br>ByteForge Team");
 
         return true;
     }

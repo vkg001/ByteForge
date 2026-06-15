@@ -15,6 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProblemResponseDto {
+    private Long id;
     private String problemTitle;
     private String problemStatement;
     private List<String> constraints = new ArrayList<>();
