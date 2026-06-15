@@ -7,7 +7,6 @@ interface ActivityCalendarProps {
     data: CalendarEntry[];
 }
 
-const DAY_LABELS = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export const ActivityCalendar = ({ data }: ActivityCalendarProps) => {
@@ -42,7 +41,6 @@ export const ActivityCalendar = ({ data }: ActivityCalendarProps) => {
         }
 
         // Month label: find the first week where a new month starts
-        // record { monthIndex, weekCol } — one entry per month transition
         const monthLabels: { label: string; col: number }[] = [];
         let lastMonth = -1;
         weeks.forEach((week, col) => {
@@ -50,7 +48,6 @@ export const ActivityCalendar = ({ data }: ActivityCalendarProps) => {
             if (firstReal) {
                 const month = new Date(firstReal.date).getMonth();
                 if (month !== lastMonth) {
-                    // Only add if there's enough room (≥2 cols from the end) to avoid overflow
                     if (col <= weeks.length - 2) {
                         monthLabels.push({ label: MONTH_NAMES[month], col });
                     }
@@ -71,100 +68,42 @@ export const ActivityCalendar = ({ data }: ActivityCalendarProps) => {
         return styles.intensity4;
     };
 
-    const CELL = 11;  // cell width px
-    const GAP = 3;   // gap px
+    const CELL = 13; // Sized up slightly to match LeetCode proportions
+    const GAP = 4;   
     const STEP = CELL + GAP;
-    const DAY_LABEL_WIDTH = 24; // px reserved for Mon/Wed/Fri labels
 
     return (
-        <div>
-            {/* Outer wrapper: day-label column + calendar column */}
-            <div style={{ display: 'flex', gap: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+            
+            {/* Top Stats Header */}
+            <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'baseline' }}>
+                <span style={{ fontSize: '20px', fontWeight: '600', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                    {totalSubmissions.toLocaleString()}
+                </span>
+                <span style={{ fontSize: '13.5px', color: 'var(--text-muted)', marginLeft: '8px' }}>
+                    submissions in the past one year
+                </span>
+            </div>
 
-                {/* Day labels column */}
-                <div style={{
-                    width: DAY_LABEL_WIDTH,
-                    flexShrink: 0,
-                    paddingTop: 18, // offset for month label row height
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: GAP,
-                }}>
-                    {DAY_LABELS.map((label, i) => (
-                        <div key={i} style={{
-                            height: CELL,
-                            fontSize: 9.5,
-                            color: 'var(--text-muted)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'flex-end',
-                            paddingRight: 4,
-                            lineHeight: 1,
-                        }}>
-                            {label}
-                        </div>
-                    ))}
-                </div>
-
-                {/* Calendar: month labels + week columns */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-
-                    {/* Month label row — positioned relative to week columns */}
-                    <div style={{
-                        position: 'relative',
-                        height: 18,
-                        marginBottom: 2,
-                    }}>
-                        {monthLabels.map(({ label, col }) => (
-                            <span
-                                key={`${label}-${col}`}
-                                style={{
-                                    position: 'absolute',
-                                    left: col * STEP,
-                                    fontSize: 10.5,
-                                    color: 'var(--text-muted)',
-                                    whiteSpace: 'nowrap',
-                                    lineHeight: '18px',
-                                }}
-                            >
-                                {label}
-                            </span>
-                        ))}
-                    </div>
-
-                    {/* Week columns rendered as flex row — no overflow */}
-                    <div style={{
-                        display: 'flex',
-                        gap: GAP,
-                        flexWrap: 'nowrap',
-                        width: '100%',
-                    }}>
+            {/* Scrollable grid area */}
+            <div style={{}}>
+                <div style={{ display: 'inline-flex', flexDirection: 'column', minWidth: '100%' }}>
+                    
+                    {/* Grid */}
+                    <div style={{ display: 'flex', gap: GAP, flexWrap: 'nowrap' }}>
                         {weeks.map((week, wi) => (
-                            <div
-                                key={wi}
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: GAP,
-                                    flex: '1 1 0',      /* each week column grows equally */
-                                    minWidth: 0,
-                                }}
-                            >
+                            <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: GAP, scale: '0.9' }}>
                                 {week.map((day, di) =>
                                     day === null ? (
                                         <div
                                             key={`pad-${wi}-${di}`}
-                                            style={{
-                                                aspectRatio: '1',
-                                                borderRadius: 2,
-                                                background: 'transparent',
-                                            }}
+                                            style={{ width: CELL, height: CELL, borderRadius: 3, background: 'transparent' }}
                                         />
                                     ) : (
                                         <div
                                             key={day.date}
                                             className={`${styles.calendarCell} ${getIntensity(day.count)}`}
-                                            style={{ aspectRatio: '1', width: '100%', height: 'auto' }}
+                                            style={{ width: CELL, height: CELL }}
                                             title={`${day.count} submission${day.count !== 1 ? 's' : ''} — ${day.date}`}
                                         />
                                     )
@@ -172,20 +111,25 @@ export const ActivityCalendar = ({ data }: ActivityCalendarProps) => {
                             </div>
                         ))}
                     </div>
-                </div>
-            </div>
 
-            {/* Legend */}
-            <div className={styles.calendarLegend}>
-                <span className={styles.calendarSummary}>
-                    {totalSubmissions.toLocaleString()} submission{totalSubmissions !== 1 ? 's' : ''} in the past year
-                </span>
-                <div className={styles.legendItems}>
-                    <span>Less</span>
-                    {[styles.intensity0, styles.intensity1, styles.intensity2, styles.intensity3, styles.intensity4].map((cls, i) => (
-                        <div key={i} className={`${styles.legendCell} ${cls}`} />
-                    ))}
-                    <span>More</span>
+                    {/* Month Labels below grid */}
+                    <div style={{ position: 'relative', height: 20, marginTop: 8 }}>
+                        {monthLabels.map(({ label, col }) => (
+                            <span
+                                key={`${label}-${col}`}
+                                style={{
+                                    position: 'absolute',
+                                    left: col * STEP,
+                                    fontSize: 12,
+                                    color: 'var(--text-muted)',
+                                    whiteSpace: 'nowrap',
+                                }}
+                            >
+                                {label}
+                            </span>
+                        ))}
+                    </div>
+                    
                 </div>
             </div>
         </div>

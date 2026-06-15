@@ -30,3 +30,12 @@ export interface SubmissionPayload {
 export interface RunPayload extends SubmissionPayload {
     customTestCases: string[];
 }
+
+export interface RecentSubmission {
+    id: number;          
+    problemId: number;   
+    problemTitle: string;
+    status: string; 
+    languageId: number;
+    submittedAt: string;
+}

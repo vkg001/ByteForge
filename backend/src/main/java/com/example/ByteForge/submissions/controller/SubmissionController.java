@@ -1,6 +1,7 @@
 package com.example.ByteForge.submissions.controller;
 
 import com.example.ByteForge.submissions.dto.request.RunCodeRequestDto;
+import com.example.ByteForge.submissions.dto.response.RecentSubmissionDto;
 import com.example.ByteForge.submissions.dto.response.RunCodeResponseDto;
 import com.example.ByteForge.submissions.service.SubmissionService;
 import com.example.ByteForge.submissions.dto.request.SubmitCodeRequestDto;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 import static com.example.ByteForge.config.Constants.PROBLEMS_PER_PAGE;
 
@@ -28,6 +31,12 @@ public class SubmissionController {
     SubmissionListResponseDto findSubmissionsByProblemAndUserId(@PathVariable("problem_id") Long problemId, @PathVariable("page_number") int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber, PROBLEMS_PER_PAGE);
         return submissionService.findSubmissionByProblemAndUserId(problemId, userService.getCurrentUserDetailsInEntity().getId(), pageable);
+    }
+
+    @GetMapping("/recent")
+    public List<RecentSubmissionDto> findRecentSubmissions(
+            @RequestParam(value = "limit", defaultValue = "15") int limit) {
+        return submissionService.getRecentSubmissions(limit);
     }
 
     @PostMapping("/submit")

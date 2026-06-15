@@ -6,6 +6,7 @@ import { User, UserStats, CalendarEntry } from '../../types';
 import { ActivityCalendar } from './ActivityCalendar';
 import { DonutChart } from './DonutChart';
 import styles from './Profile.module.css';
+import { RecentSubmissions } from './RecentSubmissions';
 
 // ── Inline SVG icons (no extra dep) ────────────────────────────────────────
 const IconPin = () => (
@@ -177,6 +178,12 @@ export const Profile = () => {
                 <div className={styles.card}>
                     <p className={styles.cardHeader}>Submission Activity</p>
                     <ActivityCalendar data={calendar} />
+                </div>
+
+                {/* ── NEW: Recent Submissions ── */}
+                <div className={styles.card}>
+                    <p className={styles.cardHeader}>Recent Submissions</p>
+                    <RecentSubmissions userId={userId} />
                 </div>
 
             </div>

@@ -1,14 +1,21 @@
 package com.example.ByteForge.problems.core.repositories;
 
 import com.example.ByteForge.problems.core.entities.ProblemEntity;
-import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ProblemRepository extends JpaRepository<ProblemEntity, Long> {
-    @Query(value = "Select * FROM problems WHERE problem_title % :keyword AND problem_visibility = 'PUBLIC' ORDER BY similarity (problem_title, :keyword) DESC", nativeQuery = true)
+
+    @Query(
+            value = "SELECT * FROM problems " +
+                    "WHERE problem_title % CAST(:keyword AS text) " +
+                    "AND problem_visibility = 'PUBLIC' " +
+                    "ORDER BY problem_title <-> CAST(:keyword AS text) ASC",
+            nativeQuery = true
+    )
     List<ProblemEntity> searchProblemsByKeyword(@Param("keyword") String keyword, Pageable pageable);
 }

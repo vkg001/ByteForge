@@ -5,6 +5,7 @@ import { Navbar } from './components/layout';
 import { Login, Profile, Signup } from './pages';
 import { ProblemList } from './pages/ProblemList/ProblemList';
 import { Workspace } from './pages/Workspace/Workspace';
+import HomePage from './pages/Home/Home';
 
 function App() {
   return (
@@ -20,8 +21,8 @@ function App() {
               <Route path="/problems/:problemId" element={<Workspace />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/profile/:userId" element={<Profile />} />
-              {/* Add your Problem List and Workspace routes here next */}
-              <Route path="/" element={<div className="p-8 text-white">Dashboard Comming Soon</div>} />
+              <Route path='/' element={<HomePage />}></Route>
+              <Route path='/home' element={<HomePage />}></Route>
             </Routes>
           </main>
         </div>

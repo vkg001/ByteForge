@@ -12,16 +12,13 @@ import com.example.ByteForge.problems.core.exceptions.ProblemNotFoundException;
 import com.example.ByteForge.problems.solved.event.SolvedProblemEvent;
 import com.example.ByteForge.problems.stats.service.ProblemStatsService;
 import com.example.ByteForge.submissions.dto.request.RunCodeRequestDto;
-import com.example.ByteForge.submissions.dto.response.CustomTestCaseResultDto;
-import com.example.ByteForge.submissions.dto.response.RunCodeResponseDto;
+import com.example.ByteForge.submissions.dto.response.*;
 import com.example.ByteForge.submissions.enums.SubmissionVisibility;
 import com.example.ByteForge.submissions.events.SubmissionEvent;
 import com.example.ByteForge.submissions.events.SubmissionUserEvent;
 import com.example.ByteForge.submissions.repository.SubmissionRepository;
 import com.example.ByteForge.submissions.dto.request.SubmitCodeRequestDto;
-import com.example.ByteForge.submissions.dto.response.SubmitCodeResponseDto;
 import com.example.ByteForge.submissions.enums.ProblemSubmissionStatus;
-import com.example.ByteForge.submissions.dto.response.SubmissionListResponseDto;
 import com.example.ByteForge.submissions.entity.SubmissionEntity;
 import com.example.ByteForge.submissions.enums.SubmissionStatus;
 import com.example.ByteForge.submissions.mapper.SubmissionMapper;
@@ -31,6 +28,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -349,6 +347,22 @@ public class SubmissionService {
 
         result.setResults(testCaseResults);
         return result;
+    }
+
+    public List<RecentSubmissionDto> getRecentSubmissions(int limit) {
+        Long userId = userService.getCurrentUserDetailsInEntity().getId();
+
+        // Spring Data Pageable to enforce the limit
+        Pageable pageable = PageRequest.of(0, limit);
+
+        List<SubmissionEntity> submissions = repository.findRecentSubmissionsWithProblem(userId, pageable);
+
+        return submissions.stream().map(sub -> new RecentSubmissionDto(
+                sub.getProblem().getProblemTitle(),
+                sub.getSubmissionStatus(),
+                sub.getLanguageId(),
+                sub.getSubmissionDateTime()
+        )).toList();
     }
 
     private record EvaluationResult(SubmissionStatus status, int passedCount, TestCaseEntity failedTestCase, Judge0ResponseDto failedResponse, String actualOutput, String userLogs) {}
