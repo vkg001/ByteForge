@@ -8,7 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
+import java.time.LocalDateTime;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +28,9 @@ public class OtpService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private TemplateEngine templateEngine;
 
     public boolean sendOtp(String email, String saveKey) {
         int otp = ((int)(Math.random() * 1000000));
@@ -39,8 +47,7 @@ public class OtpService {
                 TimeUnit.MINUTES
         );
 
-        // logic to send on email
-        emailService.sendEmail(email, "OTP -- ByteForge Coding", "OTP for verification: " + String.valueOf(otp) + ".<br>OTP is valid for 5 minutes only, if you have not requested the OTP kindly ignore and do not share the OTP with anyone.<br>Thanks,<br>ByteForge Team");
+        emailService.sendEmail(email, "OTP -- ByteForge Coding", _buildOTPBody(otp, email));
 
         return true;
     }
@@ -55,5 +62,19 @@ public class OtpService {
         }
 
         throw new InvalidOtpException("Incorrect OTP");
+    }
+
+
+    private String _buildOTPBody(int otp, String userEmail) {
+        Context context = new Context();
+        context.setVariable("otpCode", otp);
+        context.setVariable("expiryMinutes", 5);
+        context.setVariable("appName", "ByteForge");
+        context.setVariable("userEmail", userEmail);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy - HH:mm");
+        context.setVariable("requestTime", LocalDateTime.now().format(formatter));
+        context.setVariable("deviceInfo", "Mac OS / Chrome");
+        context.setVariable("year", Year.now().getValue());
+        return templateEngine.process("otp-email", context);
     }
 }
