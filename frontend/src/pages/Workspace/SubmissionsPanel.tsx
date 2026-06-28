@@ -18,7 +18,7 @@ interface Submission {
     submissionCode: string;
     failedOnTestCase: FailedTestCase | null;
     submissionStatus: string;
-    codeOutput: string;
+    codeOutput: any; // typed as 'any' to handle the empty arrays/strings your API currently sends
     userLogs: string | null;
     submissionDateTime: string;
 }
@@ -48,31 +48,6 @@ const STATUS_META: Record<string, { label: string; color: 'green' | 'red' | 'mut
 const statusMeta = (s: string) =>
     STATUS_META[s] ?? { label: s, color: 'muted' as const };
 
-/** Parse the raw ~CASE_BEGIN~...~CASE_END~ output string into structured cases */
-interface ParsedCase {
-    output: string;
-    userLogs: string;
-    timeMs: number | null;
-}
-
-function parseCaseOutput(raw: string): ParsedCase[] {
-    const blocks = raw.split('~CASE_BEGIN~').filter(b => b.trim());
-    return blocks.map(block => {
-        // strip ~CASE_END~
-        const body = block.replace('~CASE_END~', '');
-
-        const logsMatch = body.match(/~USER_LOGS~([\s\S]*?)~FUNC_OUT~/);
-        const outputMatch = body.match(/~FUNC_OUT~\n?([\s\S]*?)~TIME\|/);
-        const timeMatch = body.match(/~TIME\|([\d.]+)~/);
-
-        return {
-            output: outputMatch?.[1]?.trim() ?? '',
-            userLogs: logsMatch?.[1]?.trim() ?? '',
-            timeMs: timeMatch ? parseFloat(timeMatch[1]) : null,
-        };
-    });
-}
-
 function formatDate(iso: string): string {
     const d = new Date(iso);
     return d.toLocaleString(undefined, {
@@ -84,10 +59,12 @@ function formatDate(iso: string): string {
 // ── Sub-component: expanded detail for one submission ─────────────────────
 
 const SubmissionDetail = ({ sub }: { sub: Submission }) => {
-    const cases = parseCaseOutput(sub.codeOutput);
-    const [activeCase, setActiveCase] = useState(0);
-    const current = cases[activeCase];
     const meta = statusMeta(sub.submissionStatus);
+    
+    // Strict guard against the backend bug you mentioned. 
+    // If it's ACC, we ignore any phantom failed test cases.
+    const isActuallyFailed = sub.submissionStatus !== 'ACC' && sub.failedOnTestCase;
+    const showFailedCase = isActuallyFailed && !sub.failedOnTestCase!.hidden;
 
     return (
         <div className={styles.subDetail}>
@@ -97,9 +74,9 @@ const SubmissionDetail = ({ sub }: { sub: Submission }) => {
                 data-color={meta.color}
             >
                 <span className={styles.subDetailVerdictLabel}>{meta.label}</span>
-                {sub.failedOnTestCase && (
+                {isActuallyFailed && (
                     <span className={styles.subDetailVerdictHint}>
-                        Failed on {sub.failedOnTestCase.hidden ? 'a hidden test case' : 'test case'}
+                        Failed on {sub.failedOnTestCase!.hidden ? 'a hidden test case' : 'test case'}
                     </span>
                 )}
             </div>
@@ -110,63 +87,28 @@ const SubmissionDetail = ({ sub }: { sub: Submission }) => {
                 <pre className={styles.subCode}>{sub.submissionCode}</pre>
             </div>
 
-            {/* Failed test case (if WA and not hidden) */}
-            {sub.failedOnTestCase && !sub.failedOnTestCase.hidden && (
+            {/* Failed test case (if applicable and not hidden) */}
+            {showFailedCase && (
                 <div>
                     <p className={styles.subDetailSectionLabel}>Failed Test Case</p>
                     <div className={styles.caseDetail}>
                         <div className={styles.ioGroup}>
                             <p className={styles.ioLabel}>Input</p>
-                            <pre className={styles.ioBlock}>{sub.failedOnTestCase.input}</pre>
+                            <pre className={styles.ioBlock}>{sub.failedOnTestCase!.input}</pre>
                         </div>
                         <div className={styles.ioGroup}>
                             <p className={styles.ioLabel}>Expected Output</p>
-                            <pre className={styles.ioBlock}>{sub.failedOnTestCase.output}</pre>
+                            <pre className={styles.ioBlock}>{sub.failedOnTestCase!.output}</pre>
                         </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Per-case output breakdown */}
-            {cases.length > 0 && (
-                <div>
-                    <p className={styles.subDetailSectionLabel}>
-                        Test Case Output
-                        <span className={styles.subDetailCaseCount}>{cases.length} cases</span>
-                    </p>
-                    <div className={styles.caseTabs} style={{ marginBottom: '0.75rem' }}>
-                        {cases.map((_, idx) => (
-                            <button
-                                key={idx}
-                                className={`${styles.caseTab} ${activeCase === idx ? styles.caseTabActive : ''}`}
-                                onClick={() => setActiveCase(idx)}
-                            >
-                                Case {idx + 1}
-                            </button>
-                        ))}
-                    </div>
-
-                    {current && (
-                        <div className={styles.caseDetail}>
+                        
+                        {/* Render Stdout if logs exist and aren't just empty space */}
+                        {sub.userLogs && sub.userLogs.trim() !== '' && (
                             <div className={styles.ioGroup}>
-                                <p className={styles.ioLabel}>Output</p>
-                                <pre className={styles.ioBlock}>
-                                    {current.output || <span className={styles.emptyOutput}>(empty)</span>}
-                                </pre>
+                                <p className={styles.ioLabel}>Stdout</p>
+                                <pre className={styles.ioBlock}>{sub.userLogs}</pre>
                             </div>
-                            {current.userLogs && (
-                                <div className={styles.ioGroup}>
-                                    <p className={styles.ioLabel}>Stdout</p>
-                                    <pre className={styles.ioBlock}>{current.userLogs}</pre>
-                                </div>
-                            )}
-                            {current.timeMs !== null && (
-                                <p className={styles.execTime}>
-                                    Runtime: {current.timeMs.toFixed(3)} ms
-                                </p>
-                            )}
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             )}
         </div>
@@ -186,7 +128,7 @@ export const SubmissionsPanel = ({ problemId }: SubmissionsPanelProps) => {
     const [hasMore, setHasMore] = useState(true);
     const [expandedId, setExpandedId] = useState<number | null>(null);
 
-    const PAGE_SIZE = 10; // used to infer if more pages exist
+    const PAGE_SIZE = 10;
 
     const fetchPage = useCallback(async (pageNum: number, replace: boolean) => {
         setLoading(true);
@@ -202,13 +144,12 @@ export const SubmissionsPanel = ({ problemId }: SubmissionsPanelProps) => {
         }
     }, [problemId]);
 
-    // Initial load
     useEffect(() => {
         setSubmissions([]);
         setPage(0);
         setExpandedId(null);
         fetchPage(0, true);
-    }, [problemId]);
+    }, [problemId, fetchPage]);
 
     const handleLoadMore = () => {
         const next = page + 1;
@@ -256,21 +197,14 @@ export const SubmissionsPanel = ({ problemId }: SubmissionsPanelProps) => {
                             onClick={() => toggle(sub.id)}
                             aria-expanded={isOpen}
                         >
-                            {/* Status */}
                             <span
                                 className={styles.subStatus}
                                 data-color={meta.color}
                             >
                                 {meta.label}
                             </span>
-
-                            {/* Language */}
                             <span className={styles.subLang}>{langLabel}</span>
-
-                            {/* Date */}
                             <span className={styles.subDate}>{formatDate(sub.submissionDateTime)}</span>
-
-                            {/* Chevron */}
                             <span className={`${styles.subChevron} ${isOpen ? styles.subChevronOpen : ''}`}>
                                 ›
                             </span>

@@ -13,6 +13,8 @@ public class AppConfig {
     @Value("${spring.profiles.active}")
     private String profile;
 
+    public static final Double CPU_WALL_TIME = 20.0;
+
     public boolean isDevProfile() {
         return profile.equals("dev");
     }

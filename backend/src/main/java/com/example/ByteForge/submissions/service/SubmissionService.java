@@ -31,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -46,8 +47,12 @@ public class SubmissionService {
     private final ApplicationEventPublisher eventPublisher;
 
     public SubmissionListResponseDto findSubmissionByProblemAndUserId(Long problemId, Long userId, Pageable pageable) {
-        List<SubmissionEntity> submissions = userService.getCurrentUserDetails().getId() != userId ? repository.findSubmissionByProblemAndUserIdForPublic(problemId, userId, pageable) : repository.findSubmissionByProblemAndUserId(problemId, userId, pageable);
+        List<SubmissionEntity> submissions = !Objects.equals(userService.getCurrentUserDetails().getId(), userId)
+                ? repository.findSubmissionByProblemAndUserIdForPublic(problemId, userId, pageable)
+                : repository.findSubmissionByProblemAndUserId(problemId, userId, pageable);
+
         SubmissionListResponseDto res = new SubmissionListResponseDto();
+
         res.setAllSubmissions(submissionMapper.toResponseDtoList(submissions));
 
         if (submissions.isEmpty()) {
@@ -70,14 +75,18 @@ public class SubmissionService {
         String finalSourceCode = buildFinalSourceCode(problem, requestDto.getLanguageId(), requestDto.getSourceCode());
         String combinedInput = buildCombinedInput(problem.getTestCases());
 
+//        double batchCpuLimit = (problem.getTimeLimitInMS() * problem.getTestCases().size()) / 1000.0;
+        double batchCpuLimit = (problem.getTimeLimitInMS()) / 1000.0;
+        if (batchCpuLimit < 1) batchCpuLimit += 1.0;
+
         Judge0RequestDto batchRequest = new Judge0RequestDto(
                 finalSourceCode,
                 requestDto.getLanguageId(),
                 combinedInput,
                 null,
-                (int)(problem.getTimeLimitInMS() / 1000),
+                batchCpuLimit,
                 (int) (problem.getMemoryLimitInMB() * 1024),
-                20.0
+                AppConfig.CPU_WALL_TIME
         );
 
         List<String> tokens = judge0Service.submitBatch(List.of(batchRequest));
@@ -248,7 +257,6 @@ public class SubmissionService {
         SubmissionEvent event = new SubmissionEvent(problemEntity.getId(), accepted);
         SubmissionUserEvent userEvent = new SubmissionUserEvent(userEntity.getId(), problemEntity.getId());
 
-        // Only publish a SolvedProblemEvent if the problem was actually solved
         if (accepted) {
             SolvedProblemEvent solvedProblemEvent = new SolvedProblemEvent(problemEntity, userEntity);
             eventPublisher.publishEvent(solvedProblemEvent);
@@ -259,7 +267,6 @@ public class SubmissionService {
 
         repository.save(submissionEntity);
     }
-
 
     public RunCodeResponseDto runCustomCode(RunCodeRequestDto requestDto) {
         ProblemEntity problem = problemService.findProblemByIdGetEntity(requestDto.getProblemId())
@@ -274,14 +281,18 @@ public class SubmissionService {
         }
         String combinedInput = sb.toString();
 
+        //        double batchCpuLimit = (problem.getTimeLimitInMS() * problem.getTestCases().size()) / 1000.0;
+        double batchCpuLimit = (problem.getTimeLimitInMS()) / 1000.0;
+        if (batchCpuLimit < 1) batchCpuLimit = 1;
+
         Judge0RequestDto batchRequest = new Judge0RequestDto(
                 finalSourceCode,
                 requestDto.getLanguageId(),
                 combinedInput,
                 null,
-                (int)(problem.getTimeLimitInMS() / 1000),
+                batchCpuLimit,
                 (int)(problem.getMemoryLimitInMB() * 1024),
-                20.0
+                AppConfig.CPU_WALL_TIME
         );
 
         List<String> tokens = judge0Service.submitBatch(List.of(batchRequest));
@@ -365,7 +376,6 @@ public class SubmissionService {
     public List<RecentSubmissionDto> getRecentSubmissions(int limit, SubmissionStatus status) {
         Long userId = userService.getCurrentUserDetailsInEntity().getId();
 
-        // Spring Data Pageable to enforce the limit
         Pageable pageable = PageRequest.of(0, limit);
 
         List<SubmissionEntity> submissions = repository.findRecentSubmissionsUsingStatusWithProblemData(userId, status, pageable);
