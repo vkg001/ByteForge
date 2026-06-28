@@ -3,6 +3,7 @@ package com.example.ByteForge.submissions.controller;
 import com.example.ByteForge.submissions.dto.request.RunCodeRequestDto;
 import com.example.ByteForge.submissions.dto.response.RecentSubmissionDto;
 import com.example.ByteForge.submissions.dto.response.RunCodeResponseDto;
+import com.example.ByteForge.submissions.enums.SubmissionStatus;
 import com.example.ByteForge.submissions.service.SubmissionService;
 import com.example.ByteForge.submissions.dto.request.SubmitCodeRequestDto;
 import com.example.ByteForge.submissions.dto.response.SubmitCodeResponseDto;
@@ -36,7 +37,7 @@ public class SubmissionController {
     @GetMapping("/recent")
     public List<RecentSubmissionDto> findRecentSubmissions(
             @RequestParam(value = "limit", defaultValue = "15") int limit) {
-        return submissionService.getRecentSubmissions(limit);
+        return submissionService.getRecentSubmissions(limit, SubmissionStatus.ACC);
     }
 
     @PostMapping("/submit")

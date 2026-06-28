@@ -4,13 +4,11 @@ import com.example.ByteForge.config.AppConfig;
 import com.example.ByteForge.judge0.Judge0Service;
 import com.example.ByteForge.judge0.dto.request.Judge0RequestDto;
 import com.example.ByteForge.judge0.dto.response.Judge0ResponseDto;
-import com.example.ByteForge.problems.core.enums.ProblemVisibility;
 import com.example.ByteForge.problems.core.services.ProblemService;
 import com.example.ByteForge.problems.core.entities.ProblemEntity;
 import com.example.ByteForge.problems.core.entities.TestCaseEntity;
 import com.example.ByteForge.problems.core.exceptions.ProblemNotFoundException;
 import com.example.ByteForge.problems.solved.event.SolvedProblemEvent;
-import com.example.ByteForge.problems.stats.service.ProblemStatsService;
 import com.example.ByteForge.submissions.dto.request.RunCodeRequestDto;
 import com.example.ByteForge.submissions.dto.response.*;
 import com.example.ByteForge.submissions.enums.SubmissionVisibility;
@@ -87,9 +85,9 @@ public class SubmissionService {
 
         EvaluationResult evaluation = evaluateSingleRun(problem, response);
 
-        saveSubmission(problem, requestDto.getLanguageId(), requestDto.getSourceCode(), evaluation.failedTestCase(), evaluation.failedResponse());
-
-        return buildResponseDto(evaluation, problem.getTestCases().size());
+        SubmitCodeResponseDto submitCodeResponseDto = buildResponseDto(evaluation, problem.getTestCases().size());
+        saveSubmission(problem, requestDto.getLanguageId(), requestDto.getSourceCode(), evaluation.failedTestCase(), submitCodeResponseDto);
+        return submitCodeResponseDto;
     }
 
     private String buildFinalSourceCode(ProblemEntity problem, int languageId, String sourceCode) {
@@ -217,10 +215,12 @@ public class SubmissionService {
 
     @Transactional
     private void saveSubmission(ProblemEntity problemEntity, int languageId, String submissionCode,
-                                TestCaseEntity failedTestCase, Judge0ResponseDto executionResponse) {
+                                TestCaseEntity failedTestCase, SubmitCodeResponseDto responseDto) {
+
         SubmissionEntity submissionEntity = new SubmissionEntity();
         submissionEntity.setProblem(problemEntity);
         submissionEntity.setLanguageId(languageId);
+
         SubmissionVisibility vis;
         switch (problemEntity.getProblemVisibility()) {
             case PUBLIC -> vis = SubmissionVisibility.PUBLIC;
@@ -229,24 +229,37 @@ public class SubmissionService {
             default -> vis = SubmissionVisibility.HIDDEN;
         }
         submissionEntity.setSubmissionVisibility(vis);
+
         UserEntity userEntity = userService.getCurrentUserDetailsInEntity();
         submissionEntity.setUser(userEntity);
         submissionEntity.setSubmissionCode(submissionCode);
         submissionEntity.setFailedOnTestCase(failedTestCase);
 
-        submissionEntity.setSubmissionStatus(executionResponse == null ? SubmissionStatus.ACC : executionResponse.getMappedStatus());
-        submissionEntity.setCodeOutput(executionResponse != null && executionResponse.stdout() != null ? executionResponse.stdout().trim() : "");
-        submissionEntity.setUserLogs(executionResponse != null ? executionResponse.stderr() : "");
+        submissionEntity.setSubmissionStatus(responseDto.getStatus());
+        submissionEntity.setCodeOutput(
+                responseDto.getCodeOutput() != null ? responseDto.getCodeOutput().trim() : ""
+        );
+        submissionEntity.setUserLogs(
+                responseDto.getUserLogs() != null ? responseDto.getUserLogs() : ""
+        );
 
-        Boolean accepted = executionResponse != null && executionResponse.getMappedStatus() == SubmissionStatus.ACC;
+        boolean accepted = responseDto.getStatus() == SubmissionStatus.ACC;
+
         SubmissionEvent event = new SubmissionEvent(problemEntity.getId(), accepted);
         SubmissionUserEvent userEvent = new SubmissionUserEvent(userEntity.getId(), problemEntity.getId());
-        SolvedProblemEvent solvedProblemEvent = new SolvedProblemEvent(problemEntity, userEntity);
-        eventPublisher.publishEvent(solvedProblemEvent);
+
+        // Only publish a SolvedProblemEvent if the problem was actually solved
+        if (accepted) {
+            SolvedProblemEvent solvedProblemEvent = new SolvedProblemEvent(problemEntity, userEntity);
+            eventPublisher.publishEvent(solvedProblemEvent);
+        }
+
         eventPublisher.publishEvent(userEvent);
         eventPublisher.publishEvent(event);
+
         repository.save(submissionEntity);
     }
+
 
     public RunCodeResponseDto runCustomCode(RunCodeRequestDto requestDto) {
         ProblemEntity problem = problemService.findProblemByIdGetEntity(requestDto.getProblemId())
@@ -349,13 +362,13 @@ public class SubmissionService {
         return result;
     }
 
-    public List<RecentSubmissionDto> getRecentSubmissions(int limit) {
+    public List<RecentSubmissionDto> getRecentSubmissions(int limit, SubmissionStatus status) {
         Long userId = userService.getCurrentUserDetailsInEntity().getId();
 
         // Spring Data Pageable to enforce the limit
         Pageable pageable = PageRequest.of(0, limit);
 
-        List<SubmissionEntity> submissions = repository.findRecentSubmissionsWithProblem(userId, pageable);
+        List<SubmissionEntity> submissions = repository.findRecentSubmissionsUsingStatusWithProblemData(userId, status, pageable);
 
         return submissions.stream().map(sub -> new RecentSubmissionDto(
                 sub.getProblem().getProblemTitle(),

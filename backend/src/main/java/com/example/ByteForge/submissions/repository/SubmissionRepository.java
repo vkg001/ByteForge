@@ -23,6 +23,9 @@ public interface SubmissionRepository extends JpaRepository<SubmissionEntity, Lo
     @Query(value = "Select * from submissions WHERE problem_id = :problemId AND register_id = :userId AND status = :status ORDER BY id DESC", nativeQuery = true)
     Optional<SubmissionEntity> findSubmissionByProblemUserIdAndStatus(@Param("problemId") Long problemId, @Param("userId") Long userId, @Param("status") SubmissionStatus status);
 
-    @Query("SELECT s FROM SubmissionEntity s JOIN FETCH s.problem WHERE s.user.id = :userId ORDER BY s.submissionDateTime DESC")
-    List<SubmissionEntity> findRecentSubmissionsWithProblem(@Param("userId") Long userId, Pageable pageable);
+    @Query("SELECT s FROM SubmissionEntity s JOIN FETCH s.problem p " +
+            "WHERE s.id IN " +
+            "(SELECT MAX(sub.id) FROM SubmissionEntity sub WHERE sub.user.id = :userId AND sub.submissionStatus = :status GROUP BY sub.problem.id) " +
+            "ORDER BY s.submissionDateTime DESC")
+    List<SubmissionEntity> findRecentSubmissionsUsingStatusWithProblemData(@Param("userId") Long userId, @Param("status") SubmissionStatus status, Pageable pageable);
 }
