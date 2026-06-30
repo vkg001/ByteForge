@@ -6,6 +6,7 @@ import { Login, Profile, Signup } from './pages';
 import { ProblemList } from './pages/ProblemList/ProblemList';
 import { Workspace } from './pages/Workspace/Workspace';
 import HomePage from './pages/Home/Home';
+import { ContestList } from './pages/Contest/ContestList';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/problems" element={<ProblemList />} />
+              <Route path="/contest" element={<ContestList />} />
               <Route path="/problems/:problemId" element={<Workspace />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/profile/:userId" element={<Profile />} />

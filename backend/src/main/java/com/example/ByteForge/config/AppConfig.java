@@ -14,6 +14,7 @@ public class AppConfig {
     private String profile;
 
     public static final Double CPU_WALL_TIME = 20.0;
+    public static final Integer TOTAL_CONTEST_PER_PAGE = 15;
 
     public boolean isDevProfile() {
         return profile.equals("dev");

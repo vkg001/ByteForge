@@ -15,8 +15,8 @@ public class ContestControllerOpen {
 
     private final ContestService contestService;
 
-    @GetMapping
-    public ResponseEntity<List<ContestResponseDto>> getAllContests() {
-        return ResponseEntity.ok(contestService.getAllContests());
+    @GetMapping("/{pageNumber}")
+    public ResponseEntity<List<ContestResponseDto>> getAllContests(@PathVariable("pageNumber") int pageNumber) {
+        return ResponseEntity.ok(contestService.getAllContests(pageNumber));
     }
 }

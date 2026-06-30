@@ -1,5 +1,6 @@
 package com.example.ByteForge.contest.service;
 
+import com.example.ByteForge.config.AppConfig;
 import com.example.ByteForge.contest.dto.request.AddProblemRequestDto;
 import com.example.ByteForge.contest.dto.request.ContestCreateRequestDto;
 import com.example.ByteForge.contest.dto.response.ContestLeaderboardResponseDto;
@@ -21,6 +22,7 @@ import com.example.ByteForge.user.core.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -67,8 +69,9 @@ public class ContestService {
         contestProblemRepository.save(cp);
     }
 
-    public List<ContestResponseDto> getAllContests() {
-        return contestRepository.findAll().stream()
+    public List<ContestResponseDto> getAllContests(int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber, AppConfig.TOTAL_CONTEST_PER_PAGE);
+        return contestRepository.findAll(pageable).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
