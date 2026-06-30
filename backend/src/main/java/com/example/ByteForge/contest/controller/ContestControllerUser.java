@@ -1,6 +1,7 @@
 package com.example.ByteForge.contest.controller;
 
 import com.example.ByteForge.contest.dto.message.RawSubmissionMessage;
+import com.example.ByteForge.contest.dto.response.ContestProblemResponseDto;
 import com.example.ByteForge.contest.service.ContestService;
 import com.example.ByteForge.contest.service.ContestSubmissionProducer;
 import com.example.ByteForge.user.core.entity.UserEntity;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/user/contest")
@@ -46,5 +48,10 @@ public class ContestControllerUser {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         return ResponseEntity.ok(contestService.getLeaderboard(contestId, page, size));
+    }
+
+    @GetMapping("/{contestId}/problems")
+    public ResponseEntity<List<ContestProblemResponseDto>> getContestProblems(@PathVariable Long contestId) {
+        return ResponseEntity.ok(contestService.getContestProblems(contestId));
     }
 }

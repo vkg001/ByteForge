@@ -3,6 +3,7 @@ package com.example.ByteForge.contest.service;
 import com.example.ByteForge.contest.dto.request.AddProblemRequestDto;
 import com.example.ByteForge.contest.dto.request.ContestCreateRequestDto;
 import com.example.ByteForge.contest.dto.response.ContestLeaderboardResponseDto;
+import com.example.ByteForge.contest.dto.response.ContestProblemResponseDto;
 import com.example.ByteForge.contest.dto.response.ContestResponseDto;
 import com.example.ByteForge.contest.entity.ContestEntity;
 import com.example.ByteForge.contest.entity.ContestFinalLeaderboardEntity;
@@ -13,6 +14,7 @@ import com.example.ByteForge.contest.repository.ContestProblemRepository;
 import com.example.ByteForge.contest.repository.ContestRegistrationRepository;
 import com.example.ByteForge.contest.repository.ContestRepository;
 import com.example.ByteForge.problems.core.entities.ProblemEntity;
+import com.example.ByteForge.problems.core.enums.ProblemVisibility;
 import com.example.ByteForge.problems.core.services.ProblemService;
 import com.example.ByteForge.user.core.entity.UserEntity;
 import com.example.ByteForge.user.core.service.UserService;
@@ -52,9 +54,12 @@ public class ContestService {
     public void addProblemToContest(Long contestId, AddProblemRequestDto request) {
         ContestEntity contest = contestRepository.findById(contestId)
                 .orElseThrow(() -> new RuntimeException("Contest not found"));
+
         ProblemEntity problem = problemService.findProblemByIdGetEntity(request.getProblemId())
                 .orElseThrow(() -> new RuntimeException("Problem not found"));
 
+        problem.setProblemVisibility(ProblemVisibility.CONTEST);
+        problemService.saveProblem(problem);
         ContestProblemEntity cp = new ContestProblemEntity();
         cp.setContest(contest);
         cp.setProblem(problem);
@@ -83,6 +88,34 @@ public class ContestService {
         reg.setUser(user);
         reg.setRegisteredAt(LocalDateTime.now());
         registrationRepository.save(reg);
+    }
+
+    public List<ContestProblemResponseDto> getContestProblems(Long contestId) {
+        ContestEntity contest = contestRepository.findById(contestId)
+                .orElseThrow(() -> new RuntimeException("Contest not found"));
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.isBefore(contest.getStartTime())) {
+            throw new RuntimeException("Contest has not started yet.");
+        }
+
+        if (now.isBefore(contest.getEndTime())) {
+            UserEntity user = userService.getCurrentUserDetailsInEntity();
+            boolean isRegistered = registrationRepository.existsByContestIdAndUserId(contestId, user.getId());
+            if (!isRegistered) {
+                throw new RuntimeException("You must be registered to view problems during an active contest.");
+            }
+        }
+
+        return contest.getProblems().stream().map(cp -> {
+            ContestProblemResponseDto dto = new ContestProblemResponseDto();
+            dto.setContestProblemId(cp.getId());
+            dto.setScore(cp.getScore());
+            // Call the newly created method in ProblemService
+            dto.setProblem(problemService.getVisibleProblemDto(cp.getProblem()));
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     public Object getLeaderboard(Long contestId, int page, int size) {

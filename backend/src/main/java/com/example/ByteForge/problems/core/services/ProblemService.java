@@ -63,4 +63,10 @@ public class ProblemService {
         ProblemSavedEvent event = new ProblemSavedEvent(problem.getId());
         eventPublisher.publishEvent(event);
     }
+
+    public ProblemResponseDto getVisibleProblemDto(ProblemEntity entity) {
+        ProblemResponseDto dto = problemMapper.toResponseDto(entity);
+        dto.setTestCases(testCaseMapper.toVisibleResponseDtoList(entity.getTestCases()));
+        return dto;
+    }
 }
