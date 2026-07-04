@@ -1,6 +1,7 @@
 package com.example.ByteForge.problems.core.services;
 
 import com.example.ByteForge.problems.core.dto.response.ProblemResponseDto;
+import com.example.ByteForge.problems.core.enums.ProblemVisibility;
 import com.example.ByteForge.problems.core.mappers.ProblemMapper;
 import com.example.ByteForge.problems.core.mappers.TestCaseMapper;
 import com.example.ByteForge.problems.core.entities.ProblemEntity;
@@ -33,7 +34,7 @@ public class ProblemService {
     @Transactional
     public List<ProblemResponseDto> searchProblemByKeyword(String keyword, int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber, PROBLEMS_PER_PAGE);
-        List<ProblemEntity> entities = keyword.trim().isEmpty() ? problemRepository.findByProblemVisibility("PUBLIC", pageable).getContent() : problemRepository.searchProblemsByKeyword(keyword, pageable);
+        List<ProblemEntity> entities = keyword.trim().isEmpty() ? problemRepository.findByProblemVisibility(ProblemVisibility.PUBLIC, pageable).getContent() : problemRepository.searchProblemsByKeyword(keyword, pageable);
 
         return entities.stream()
                 .map(entity -> {

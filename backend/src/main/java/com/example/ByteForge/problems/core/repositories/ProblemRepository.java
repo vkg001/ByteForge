@@ -1,6 +1,7 @@
 package com.example.ByteForge.problems.core.repositories;
 
 import com.example.ByteForge.problems.core.entities.ProblemEntity;
+import com.example.ByteForge.problems.core.enums.ProblemVisibility;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,5 +20,5 @@ public interface ProblemRepository extends JpaRepository<ProblemEntity, Long> {
             nativeQuery = true
     )
     List<ProblemEntity> searchProblemsByKeyword(@Param("keyword") String keyword, Pageable pageable);
-    Page<ProblemEntity> findByProblemVisibility(String problemVisibility, Pageable pageable);
+    Page<ProblemEntity> findByProblemVisibility(ProblemVisibility problemVisibility, Pageable pageable);
 }

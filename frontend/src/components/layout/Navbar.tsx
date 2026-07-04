@@ -59,9 +59,9 @@ const IconCompass = () => (
 
 // ── Nav link definitions ───────────────────────────────────────────────────
 const NAV_LINKS = [
-    { to: '/explore', label: 'Explore', Icon: IconCompass },
+    { to: '/home', label: 'Explore', Icon: IconCompass },
     { to: '/problems', label: 'Problems', Icon: IconList },
-    { to: '/discuss', label: 'Discuss', Icon: IconCode },
+    { to: '/contest', label: 'Contest', Icon: IconCode },
 ];
 
 // ── Component ─────────────────────────────────────────────────────────────
