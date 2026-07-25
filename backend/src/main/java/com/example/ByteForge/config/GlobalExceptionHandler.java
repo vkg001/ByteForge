@@ -2,6 +2,7 @@ package com.example.ByteForge.config;
 
 import com.example.ByteForge.auth.signup.exceptions.InvalidOtpException;
 import com.example.ByteForge.auth.signup.exceptions.UserAlreadyExistsException;
+import com.example.ByteForge.config.rate_limit.RateLimitExceededException;
 import com.example.ByteForge.utility.SimpleMessageDto;
 import com.example.ByteForge.problems.core.exceptions.ProblemNotFoundException;
 import com.example.ByteForge.user.core.exception.UserNotFoundException;
@@ -48,5 +49,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<SimpleMessageDto> handleGeneralException(Exception ex) {
         SimpleMessageDto errorResponse = new SimpleMessageDto(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    public ResponseEntity<SimpleMessageDto> handleRateLimitExceeded(RateLimitExceededException ex) {
+        SimpleMessageDto errorResponse = new SimpleMessageDto(ex.getMessage(), HttpStatus.TOO_MANY_REQUESTS);
+        return new ResponseEntity<>(errorResponse, errorResponse.getStatus());
     }
 }

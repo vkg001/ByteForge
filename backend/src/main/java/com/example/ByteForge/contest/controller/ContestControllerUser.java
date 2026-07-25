@@ -1,5 +1,6 @@
 package com.example.ByteForge.contest.controller;
 
+import com.example.ByteForge.config.rate_limit.RateLimit;
 import com.example.ByteForge.contest.dto.message.RawSubmissionMessage;
 import com.example.ByteForge.contest.dto.response.ContestProblemResponseDto;
 import com.example.ByteForge.contest.service.ContestService;
@@ -28,6 +29,7 @@ public class ContestControllerUser {
         return ResponseEntity.ok().build();
     }
 
+    @RateLimit(key = "problem-submission-from-contest-controller-user", capacity = 1, refillTokens = 1, refillDurationInSeconds = 5)
     @PostMapping("/{contestId}/submit")
     public ResponseEntity<String> submitCode(@PathVariable Long contestId, @RequestBody RawSubmissionMessage request) {
         UserEntity user = userService.getCurrentUserDetailsInEntity();

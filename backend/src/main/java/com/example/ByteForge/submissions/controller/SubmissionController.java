@@ -1,5 +1,6 @@
 package com.example.ByteForge.submissions.controller;
 
+import com.example.ByteForge.config.rate_limit.RateLimit;
 import com.example.ByteForge.submissions.dto.request.RunCodeRequestDto;
 import com.example.ByteForge.submissions.dto.response.RecentSubmissionDto;
 import com.example.ByteForge.submissions.dto.response.RunCodeResponseDto;
@@ -40,11 +41,13 @@ public class SubmissionController {
         return submissionService.getRecentSubmissions(limit, SubmissionStatus.ACC);
     }
 
+    @RateLimit(key = "problem-submission-from-submission-controller", capacity = 1, refillTokens = 1, refillDurationInSeconds = 10)
     @PostMapping("/submit")
     public SubmitCodeResponseDto submitCode(@RequestBody SubmitCodeRequestDto requestDto) {
         return submissionService.processSubmission(requestDto);
     }
 
+    @RateLimit(key = "problem-run-from-submission-controller", capacity = 1, refillTokens = 1, refillDurationInSeconds = 10)
     @PostMapping("/run")
     public RunCodeResponseDto runCustomCode(@Valid @RequestBody RunCodeRequestDto requestDto) {
         return submissionService.runCustomCode(requestDto);
